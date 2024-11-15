@@ -18,4 +18,4 @@ license = {text = "MIT"}
 distribution = false
 
 [tool.setuptools]
-package-dir={"" = "src.crawling"}
+package-dir={"" = "src/crawling"}
