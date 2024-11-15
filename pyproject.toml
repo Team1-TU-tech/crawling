@@ -5,7 +5,10 @@ description = "티켓링크에서 게시글을 크롤링"
 authors = [
     {name = "Mingk42", email = "xoals123456t@gmail.com"},
 ]
-dependencies = []
+dependencies = [
+    "selenium>=4.26.1",
+    "bs4>=0.0.2",
+]
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
