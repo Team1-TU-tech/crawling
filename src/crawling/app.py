@@ -14,7 +14,7 @@ all_links = ['http://ticket.yes24.com/Perf/51671']
 def scrape_data():
     # Chrome 드라이버 설정
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
+    #options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     # 크롤링할 데이터 저장용 리스트
