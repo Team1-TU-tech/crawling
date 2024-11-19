@@ -18,7 +18,7 @@ def all_scrape_data():
     all_links = get_link(driver)
     
     for link in all_links:
-        print(f"크롤링 중: {link}")
+        print(f"링크 수집 중: {link}")
 
         # 페이지 열기
         driver.get(link)
@@ -34,12 +34,12 @@ def all_scrape_data():
         try:
             # 전체 페이지 HTML 소스를 가져오기
             page_source = driver.page_source
-
+            
             from bs4 import BeautifulSoup
             soup = BeautifulSoup(page_source, 'html.parser')
 
             renew_content = soup.find_all(class_="renew-content")
-
+            
             # 데이터를 출력
             for content in renew_content:
                 print(content.text)
