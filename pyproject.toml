@@ -17,5 +17,9 @@ license = {text = "MIT"}
 [tool.pdm]
 distribution = false
 
+[tool.pdm.dev-dependencies]
+dev = [
+    "notebook>=7.2.2",
+]
 [tool.setuptools]
 package-dir={"" = "src"}
