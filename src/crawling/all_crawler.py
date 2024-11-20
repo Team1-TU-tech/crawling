@@ -37,12 +37,9 @@ def all_scrape_data():
             
             from bs4 import BeautifulSoup
             soup = BeautifulSoup(page_source, 'html.parser')
-
-            renew_content = soup.find_all(class_="renew-content")
             
-            # 데이터를 출력
-            for content in renew_content:
-                print(content.text)
+            raw_content = soup.find_all(class_="renew-content")
+            print(raw_content)       
 
         except Exception as e:
             print(f"페이지에서 오류 발생: {e}")
@@ -51,7 +48,7 @@ def all_scrape_data():
     # 크롬 드라이버 종료
     driver.quit()
 
-    return content.text 
+    return raw_content 
 
 # 실행
 if __name__ == "__main__":
