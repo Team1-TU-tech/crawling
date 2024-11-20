@@ -1,11 +1,11 @@
 [project]
 name = "crawling"
-version = "0.3.1"
+version = "0.3.2"
 description = "yes24 crawling save raw data"
 authors = [
     {name = "sunwoo", email = "summerham22@gmail.com"},
 ]
-dependencies = ["selenium>=4.26.1", "webdriver-manager>=4.0.2"]
+dependencies = ["selenium>=4.26.1", "webdriver-manager>=4.0.2", "python-dateutil>=2.9.0.post0"]
 requires-python = ">=3.8"
 readme = "README.md"
 license = {text = "MIT"}
