@@ -5,8 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-from links import get_link  # 링크를 가져오는 함수
-from utils import set_offset 
+from crawling.links import get_link  # 링크를 가져오는 함수
+from crawling.utils import set_offset 
 
 def scrap_data():
     # Chrome 드라이버 설정
