@@ -12,6 +12,8 @@ def all_scrape_data():
     # Chrome 드라이버 설정
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
+    options.add_argument('--disable-dev-shm-usage')  # 공유 메모리 사용 비활성화
+    options.add_argument('--no-sandbox')  # 샌드박스 모드 비활성화 (Docker 환경에서 권장)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
     #all_links = ['http://ticket.yes24.com/Perf/51733']
