@@ -16,8 +16,8 @@ def all_scrap():
     options.add_argument('--no-sandbox')  # 샌드박스 모드 비활성화 (Docker 환경에서 권장)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
-    all_links = ['http://ticket.yes24.com/Perf/51671']
-    #all_links = get_link(driver)
+    #all_links = ['http://ticket.yes24.com/Perf/51671']
+    all_links = get_link(driver)
     title = ''
     for link in all_links:
         print(f"링크 수집 중: {link}")
