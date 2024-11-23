@@ -18,7 +18,8 @@ def get_link(driver):
 
             # 페이지 로딩 대기
             time.sleep(3)
-
+            num += 1
+            
     #         try:
     #             error_image = driver.find_elements(By.CSS_SELECTOR, 'img[src="http://tkfile.yes24.com/images/errorImg_ticket.gif"]')
 
@@ -73,6 +74,7 @@ def get_link(driver):
         set_offset(num)
 
     # 크롬 드라이버 종료
+    set_offset(num)
     driver.quit()
 
     # 링크 리스트 출력
