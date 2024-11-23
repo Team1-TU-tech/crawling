@@ -33,7 +33,7 @@ def all_scrap():
             print(f"페이지 로딩 실패: {e}")
             continue  
         
-        title = driver.find_element(By.CLASS_NAME, 'rn-big-title').text
+        title = link 
 
         try:
             # 페이지에서 특정 조건 확인
