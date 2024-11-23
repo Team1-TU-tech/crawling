@@ -8,7 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from crawling.links import get_link  # 링크를 가져오는 함수
 from crawling.utils import set_offset
 
-def all_scrape_data():
+def all_scrap():
     # Chrome 드라이버 설정
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
@@ -63,4 +63,4 @@ def all_scrape_data():
 
 # 실행
 if __name__ == "__main__":
-    all_scraped_data = all_scrape_data()
+    all_scrap = all_scrap()
