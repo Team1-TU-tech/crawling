@@ -34,6 +34,15 @@ def all_scrape_data():
             continue  
 
         try:
+            # 페이지에서 특정 조건 확인
+            category = driver.find_element(By.CSS_SELECTOR, '.rn-location a').text
+            date = driver.find_element(By.CSS_SELECTOR, '.ps-date').text  # 시작일자와 종료일자가 포함된 텍스트
+            start_date, end_date = date.split('~')  # '~'를 기준으로 시작일자와 종료일자 분리
+
+            if category not in ['전시/행사', '콘서트', '뮤지컬', '연극'] or start_date[:4] != '2024':
+                print(f"조건에 맞지 않는 페이지: {category}, 연도: {start_date}")
+                continue
+
             # 전체 페이지 HTML 소스를 가져오기
             page_source = driver.page_source
             
