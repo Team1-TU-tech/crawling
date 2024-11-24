@@ -16,11 +16,12 @@ def all_scrap():
     options.add_argument('--no-sandbox')  # 샌드박스 모드 비활성화 (Docker 환경에서 권장)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
-    all_links = ['http://ticket.yes24.com/Perf/51672','http://ticket.yes24.com/Perf/51673']
+    all_links = ['http://ticket.yes24.com/Perf/51674','http://ticket.yes24.com/Perf/51675']
     #all_links = get_link(driver)
     title = ''
+    crawling_list = []
     for link in all_links:
-        print(f"링크 수집 중: {link}")
+        print(f"페이지 파싱 중: {link}")
 
         # 페이지 열기
         driver.get(link)
@@ -40,8 +41,8 @@ def all_scrap():
             category = driver.find_element(By.CSS_SELECTOR, '.rn-location a').text
             date = driver.find_element(By.CSS_SELECTOR, '.ps-date').text  # 시작일자와 종료일자가 포함된 텍스트
             start_date, end_date = date.split('~')  # '~'를 기준으로 시작일자와 종료일자 분리
-            
-            if category not in ['전시/행사', '콘서트', '뮤지컬', '연극'] or start_date[:4] != '2024':
+            include_year = ["2024","2025"]
+            if category not in ['전시/행사', '콘서트', '뮤지컬', '연극'] or start_date[:4] not in include_year:
                 print(f"조건에 맞지 않는 페이지: {category}, 연도: {start_date}")
                 continue
 
@@ -52,7 +53,7 @@ def all_scrap():
             soup = BeautifulSoup(page_source, 'html.parser')
             
             raw_content = soup.find_all(class_="renew-content")
-            print(raw_content)       
+            crawling_list.append({"data":raw_content, "title":title})    
 
         except Exception as e:
             print(f"페이지에서 오류 발생: {e}")
@@ -61,7 +62,7 @@ def all_scrap():
     # 크롬 드라이버 종료
     driver.quit()
     
-    return [raw_content, title] 
+    return crawling_list
 
 # 실행
 if __name__ == "__main__":
