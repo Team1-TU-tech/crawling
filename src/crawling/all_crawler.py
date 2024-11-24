@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from crawling.links import get_link  # 링크를 가져오는 함수
 from crawling.utils import set_offset
+from crawling.test import test_link
 
 def all_scrap():
     # Chrome 드라이버 설정
@@ -17,7 +18,8 @@ def all_scrap():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
     #all_links = ['http://ticket.yes24.com/Perf/51674','http://ticket.yes24.com/Perf/51675']
-    all_links = get_link(driver)
+    #all_links = get_link(driver)
+    all_links = test_link()
     title = ''
     crawling_list = []
     for link in all_links:
