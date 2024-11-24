@@ -7,10 +7,14 @@ from selenium.webdriver.support import expected_conditions as EC
 import re
 
 # 테스트할 웹사이트 URL
-test_url = "https://www.ticketlink.co.kr/help/notice/57930"  # 에스파
+#test_url = "https://www.ticketlink.co.kr/help/notice/57930"  # 에스파
 #test_url = "https://www.ticketlink.co.kr/help/notice/59062"  # 남주
 #test_url = "https://www.ticketlink.co.kr/help/notice/59142"  # 베리베리
-#test_url = "https://www.ticketlink.co.kr/help/notice/60826" #호두까기 인형
+#test_url = "https://www.ticketlink.co.kr/help/notice/60826" # 호두까기 인형
+#test_url = "https://www.ticketlink.co.kr/help/notice/45261"
+#test_url = "https://www.ticketlink.co.kr/help/notice/60831"
+
+test_url = "https://www.ticketlink.co.kr/help/notice/60844"
 
 # Selenium WebDriver 설정
 options = webdriver.ChromeOptions()
@@ -64,25 +68,24 @@ try:
         show_time = full_date.strip()
 
     # 공연 장소
-    match_location = re.search(r"공연\s*장소\s*[:：]?\s*([^\n]+)", page_text)
+    match_location = re.search(r"공연\s*장소\s*[:：\-]?\s*([^\n]+)", page_text)
     if match_location:
         location = match_location.group(1).strip()
 
     # 티켓 가격
-    match_price = re.search(r"티켓\s*가격\s*[:：]?\s*([^\n]+)", page_text)
+    match_price = re.search(r"티켓\s*가격\s*[:：\-]?\s*([^\n]+)", page_text)
     if match_price:
         price = match_price.group(1).strip()
-
+    
     # 관람 시간
-    match_running_time = re.search(r"관람\s*시간\s*[:：]?\s*([^\n]+)", page_text)
+    match_running_time = re.search(r"관람\s*시간\s*[:：\-]?\s*([^\n]+)", page_text)
     if match_running_time:
         running_time = match_running_time.group(1).strip()
 
     # 관람 등급
-    match_rating = re.search(r"관람\s*등급\s*[:：]?\s*([^\n]+)", page_text)
+    match_rating = re.search(r"관람\s*등급\s*[:：\-]?\s*([^\n]+)", page_text)
     if match_rating:
         rating = match_rating.group(1).strip()
-
 
     ################## 포스터 URL, 제목, 예매처 링크 ##################
     try:
@@ -98,10 +101,17 @@ try:
         )
         full_title = title_element.get_attribute("textContent").strip()
 
+        # "단독판매" 여부 확인 및 제거
+        exclusive = 0  # 단독판매 아닌 기본 값
+        if "단독판매" in full_title:
+            exclusive = 1  # 단독판매인 경우 1로 설정
+            full_title = full_title.replace("[단독판매]", "").strip()
+
         # "단독판매" 제거
         if "단독판매" in full_title:
             full_title = full_title.replace("[단독판매]", "").strip()
 
+        # "티켓오픈 안내" 제거
         if "티켓오픈 안내" in full_title:
             title = full_title.split("티켓오픈 안내")[0].strip()
         elif "\u200b" in full_title:
@@ -123,7 +133,6 @@ try:
         print(f"포스터, 공연 제목, 예매처 링크 로드 실패: {e}")
 
     ################## 예매일 ##################
-   
     # 티켓 오픈일
     open_date_element = driver.find_element(By.ID, "ticketOpenDatetime")
     open_date = open_date_element.text.strip()
@@ -200,8 +209,10 @@ try:
     print(f"티켓 가격: {price}")
     print(f"관람 시간: {running_time}")
     print(f"관람 등급: {rating}")
+
     print(f"선예매 날짜: {pre_open_date}")
     print(f"일반 예매 날짜: {open_date}")
+    print(f"단독판매 여부: {exclusive}")
 
 except Exception as e:
     print(f"오류 발생: {e}")

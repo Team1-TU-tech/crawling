@@ -3,12 +3,14 @@ import csv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from urllib3.exceptions import ReadTimeoutError
 
 # 현재 실행 중인 디렉토리 경로 가져오기
 current_directory = os.getcwd()
 
 # CSV 파일 경로를 현재 디렉토리로 설정
 csv_filename = os.path.join(current_directory, "open_info.csv")
+error_filename = os.path.join(current_directory, "error_log.csv")
 
 # 기본 URL 설정
 base_url = "https://www.ticketlink.co.kr/help/notice/"
@@ -42,7 +44,7 @@ def get_last_id_from_page(driver, base_url):
 
 # Selenium WebDriver 설정 및 크롤링 로직
 options = webdriver.ChromeOptions()
-options.add_argument('--headless')
+#options.add_argument('--headless')
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 driver = webdriver.Chrome(options=options)
@@ -60,6 +62,12 @@ try:
         with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             writer.writerow(["csoonID", "showID", "HTML"])
+
+    # 파일에 헤더 추가 (error_log.csv)
+    if not os.path.exists(error_filename):
+        with open(error_filename, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(["csoonID", "Error"])
 
     # 기존 파일에서 마지막으로 처리된 ID 가져오기
     offset = get_last_processed_id(csv_filename) + 1
@@ -111,12 +119,17 @@ try:
 
                 else:  # 스포츠, 변경/취소, 시스템, 기타 카테고리
                     print(f"csoonID: {csoonID}, 카테고리: {th_value} / >>넘어갑니다<<")
-
+ 
             except NoSuchElementException:
+                print(f"사이트 찾을 수 없음: {current_url}")
                 continue
 
-        except WebDriverException as e:
-            print(f"WebDriverException for csoonID: {csoonID} - {e}")
+        except (WebDriverException, ReadTimeoutError) as e:
+            print(f"오류 발생 (csoonID: {csoonID}): {e}")
+            with open(error_filename, mode='a', newline='', encoding='utf-8') as error_file:
+                writer = csv.writer(error_file)
+                writer.writerow([csoonID, str(e)])
+            continue
 
 finally:
     driver.quit()
