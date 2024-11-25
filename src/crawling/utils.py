@@ -7,7 +7,7 @@ def connect_to_redis():
         decode_responses=True
     )
 
-def get_last_id_from_redis(default_id=51820):
+def get_last_id_from_redis(default_id=1):
     r = connect_to_redis()
     last_id = r.get('last_processed_id')
     if last_id is None:
@@ -16,7 +16,7 @@ def get_last_id_from_redis(default_id=51820):
     return int(last_id)
     #return None
 
-def update_last_id_in_redis(new_id=51820):
+def update_last_id_in_redis(new_id):
     r = connect_to_redis()
     r.set('last_processed_id', new_id)
 
