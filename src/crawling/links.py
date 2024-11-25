@@ -1,8 +1,17 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 from crawling.utils import get_offset, set_offset
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium import webdriver
 import time
 
-def get_link(driver):
+def get_link():
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
+    options.add_argument('--disable-dev-shm-usage')  # 공유 메모리 사용 비활성화
+    options.add_argument('--no-sandbox')  # 샌드박스 모드 비활성화 (Docker 환경에서 권장)  
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
     # 링크를 저장할 리스트
     all_links = []
     num = get_offset()  # 시작할 offset 가져오기
@@ -47,3 +56,8 @@ def get_link(driver):
     # 크롤링 결과 출력
     print(f"총 {len(all_links)}개의 링크를 수집했습니다.")
     return all_links
+
+
+# 실행
+if __name__ == "__main__":
+    get_link = get_link()

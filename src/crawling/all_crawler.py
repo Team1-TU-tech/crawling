@@ -17,7 +17,7 @@ def all_scrap():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
     #all_links = ['http://ticket.yes24.com/Perf/51674','http://ticket.yes24.com/Perf/51675']
-    all_links = get_link(driver)
+    #all_links = get_link()
 
     title = ''
     crawling_list = []
