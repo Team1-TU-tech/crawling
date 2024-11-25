@@ -1,8 +1,0 @@
-Name: 박규원, Role: 루이스/앤, Image URL: https://image.toast.com/aaaaab/ticketlink/TKL_4/HJ%EB%B0%95%EA%B7%9C%EC%9B%90%ED%94%84%EB%A1%9C%ED%95%84.jpg
-Name: 최호승, Role: 루이스/앤, Image URL: https://image.toast.com/aaaaab/ticketlink/TKL_7/HJ%EC%B5%9C%ED%98%B8%EC%8A%B9%ED%94%84%EB%A1%9C%ED%95%84.jpg
-Name: 임찬민, Role: 루이스/앤, Image URL: https://image.toast.com/aaaaab/ticketlink/TKL_4/HJ%EC%9E%84%EC%B0%AC%EB%AF%BC%ED%94%84%EB%A1%9C%ED%95%84.jpg
-Name: 임예진, Role: 루이스/앤, Image URL: https://image.toast.com/aaaaab/ticketlink/TKL_2/HJ%EC%9E%84%EC%98%88%EC%A7%84%ED%94%84%EB%A1%9C%ED%95%84.jpg
-Name: 주민진, Role: 잭/메리, Image URL: https://image.toast.com/aaaaab/ticketlink/TKL_3/HJ%EC%A3%BC%EB%AF%BC%EC%A7%84%ED%94%84%EB%A1%9C%ED%95%84.jpg
-Name: 김지온, Role: 잭/메리, Image URL: https://image.toast.com/aaaaab/ticketlink/TKL_2/HJ%EA%B9%80%EC%A7%80%EC%98%A8%ED%94%84%EB%A1%9C%ED%95%84.jpg
-Name: 랑연, Role: 잭/메리, Image URL: https://image.toast.com/aaaaab/ticketlink/TKL_7/HJ%EB%9E%91%EC%97%B0%ED%94%84%EB%A1%9C%ED%95%84.jpg
-Name: 정우연, Role: 잭/메리, Image URL: https://image.toast.com/aaaaab/ticketlink/TKL_9/HJ%EC%A0%95%EC%9A%B0%EC%97%B0%ED%94%84%EB%A1%9C%ED%95%84.jpg
