@@ -2,7 +2,7 @@ import redis
 
 def connect_to_redis():
     return redis.StrictRedis(
-        host='localhost',
+        host='redis',  # Redis 컨테이너의 호스트 이름
         port=6379,
         decode_responses=True
     )
