@@ -7,7 +7,7 @@ import re
 from datetime import datetime
 
 # 테스트할 웹사이트 URL
-#test_url = "https://www.ticketlink.co.kr/help/notice/57930"  # 에스파
+test_url = "https://www.ticketlink.co.kr/help/notice/57930"  # 에스파
 #test_url = "https://www.ticketlink.co.kr/help/notice/59062"  # 남주
 #test_url = "https://www.ticketlink.co.kr/help/notice/59142"  # 베리베리
 
@@ -15,7 +15,7 @@ from datetime import datetime
 #test_url = "https://www.ticketlink.co.kr/help/notice/45261"
 #test_url = "https://www.ticketlink.co.kr/help/notice/60831"
 
-test_url = "https://www.ticketlink.co.kr/help/notice/60844"
+#test_url = "https://www.ticketlink.co.kr/help/notice/60844"
 #test_url = "https://www.ticketlink.co.kr/help/notice/60856"
 
 # Selenium WebDriver 설정
@@ -47,26 +47,9 @@ def normalize_date(raw_date, base_year=None):
     return None
 
 def normalize_datetime_range(raw_text, base_year=None):
-    # ~ 앞의 텍스트 추출
-    if "~" in raw_text:
-        match = re.search(r"(.+?)\s*~", raw_text)
-        if match:
-            pre_range_text = match.group(1).strip()
-        else:
-            pre_range_text = raw_text.strip()  # 매칭 실패 시 전체 텍스트 사용
-    else:
-        pre_range_text = raw_text.strip()  # ~ 기호가 없는 경우 전체 텍스트 사용
 
-    # 불필요한 접두어, 요일, 및 (KST) 제거
-    pre_range_text = re.sub(r"^[^\d]*", "", pre_range_text).strip()  # 접두어 제거
-    pre_range_text = re.sub(r"\(KST\)", "", pre_range_text).strip()  # (KST) 제거
-    pre_range_text = re.sub(r"\([^)]*\)", "", pre_range_text).strip()  # 요일 제거
-    pre_range_text = pre_range_text.replace("년 ", ".").replace("월 ", ".").replace("일", "").strip()  # 한국어 날짜 형식 변환
-
-def normalize_datetime_range(raw_text, base_year=None):
-
-    # ~ 앞의 텍스트 추출
-    if "~" in raw_text:
+    # ~ , - 앞의 텍스트 추출
+    if "~" in raw_text or "-" in raw_text:
         match = re.search(r"(.+?)\s*~", raw_text)
         if match:
             pre_range_text = match.group(1).strip()
@@ -147,13 +130,19 @@ try:
 
     if match_date:
         full_date = match_date.group(2).strip()
-        if " ~ " in full_date:  # 기간이 '~'로 구분되어 있는 경우
+        # 기간이 '~' 또는 '-'로 구분되어 있는 경우를 모두 처리
+        if " ~ " in full_date:
             start_date, end_date = full_date.split(" ~ ")
-            start_date = start_date.strip()
-            end_date = end_date.strip()
+        elif " - " in full_date:
+            start_date, end_date = full_date.split(" - ")
         else:  # 기간이 하나의 값으로만 되어 있는 경우
             start_date = end_date = full_date.strip()
 
+        # 양쪽 공백 제거
+        start_date = start_date.strip()
+        end_date = end_date.strip()
+
+        # 날짜 정규화
         normalized_start_date = normalize_date(start_date) if start_date else None
         normalized_end_date = normalize_date(end_date) if end_date else None
 
@@ -248,9 +237,6 @@ try:
     general_open_keywords = ["일반 예매", "오픈예매", "일반예매", "예매 일정"]
 
     # 정규식: 날짜 및 시간 패턴
-
-    #date_time_pattern = r"(\d{4}년\s*\d{1,2}월\s*\d{1,2}일(?:\([^)]+\))?)\s*([오전|오후]*\s*\d{1,2}시(?:\s*\d{1,2}분)?(?:\s*\d{1,2}초)?|\d{1,2}:\d{2}(?::\d{2})?)"
-    #date_time_pattern = r"(\d{4}년\s*\d{1,2}월\s*\d{1,2}일(?:\([^)]+\))?)\s*([오전|오후]*\s*\d{1,2}시(?:\s*\d{1,2}분)?(?:\s*\d{1,2}초)?|\d{1,2}:\d{2})"
     date_time_pattern = r"(\d{4}년\s*\d{1,2}월\s*\d{1,2}일(?:\([^)]*\))?)\s*(오전|오후)?\s*(\d{1,2}:\d{2}(?::\d{2})?)?"
 
     # 텍스트를 줄 단위로 나눔
@@ -299,42 +285,7 @@ try:
             open_date = normalize_datetime_range(open_date)
 
 ################################공연설명##########################################
-# ##1. 볼드
 
-# # 공연설명 추출 - 볼드 태그 기준 종료
-#     def extract_performance_description_bold(full_text):
-#         try:
-#             start_keywords = [
-#                 "공연내용", "공연 내용", "[공연내용]", "[공연 내용]",
-#                 "공연소개", "공연 소개", "[공연소개]", "[공연 소개]",
-#                 "◈공연소개"
-#             ]
-#             bold_end_pattern = r"<b>"  # 볼드 태그 기준 종료
-#             description = []
-#             is_description_section = False
-#             lines = full_text.split("\n")
-
-#             for line in lines:
-#                 line = line.strip()
-#                 if not is_description_section and any(keyword in line for keyword in start_keywords):
-#                     is_description_section = True
-#                     continue
-#                 if is_description_section and re.search(bold_end_pattern, line):
-#                     break
-#                 if is_description_section:
-#                     description.append(line)
-
-#             return "\n".join(description).strip() if description else "공연설명 없음"
-#         except Exception as e:
-#             print(f"공연설명 추출 중 오류 발생 (볼드 기준): {e}")
-#             return "공연설명 추출 실패"
-
-    # bold_based_description = extract_performance_description_bold(full_text)
-    # print(f"공연 소개: {bold_based_description}")
-    
-## 2. 줄바꿈
-# 공연설명 추출 - 줄바꿈 2번 이상 기준 종료
-# 공연설명 추출 - 줄바꿈 2번 이상 또는 종료 키워드 기준 종료
     def extract_performance_description_with_keywords(full_text):
         try:
             start_keywords = [
