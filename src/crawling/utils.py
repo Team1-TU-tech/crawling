@@ -7,10 +7,13 @@ def connect_to_redis():
         decode_responses=True
     )
 
-def get_last_id_from_redis():
+def get_last_id_from_redis(default_id=50016):
     r = connect_to_redis()
     last_id = r.get('last_processed_id')
-    return int(last_id) if last_id else 1
+    if last_id is None:
+        r.set('last_processed_id', default_id)  # Redis에 기본값 설정
+        return default_id
+    return int(last_id)
 
 def update_last_id_in_redis(new_id):
     r = connect_to_redis()
