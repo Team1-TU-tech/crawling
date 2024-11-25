@@ -8,7 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from crawling.links import get_link  # 링크를 가져오는 함수
 from crawling.utils import set_offset
 
-def all_scrap():
+def all_scrap(all_links):
     # Chrome 드라이버 설정
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행

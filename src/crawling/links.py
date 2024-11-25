@@ -1,11 +1,10 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from crawling.utils import get_offset, set_offset
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 import time
 
-def get_link():
+def get_link(start_id=50016):
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
     options.add_argument('--disable-dev-shm-usage')  # 공유 메모리 사용 비활성화
@@ -14,7 +13,7 @@ def get_link():
 
     # 링크를 저장할 리스트
     all_links = []
-    num = get_offset()  # 시작할 offset 가져오기
+    num = start_id  # 시작할 start_id 가져오기
     print(f"크롤링 시작: 시작 페이지 번호는 {num}입니다.")
     
     try:
@@ -49,8 +48,6 @@ def get_link():
     except KeyboardInterrupt:
         print("\n작업이 중단되었습니다. 마지막으로 시도한 페이지 번호를 저장합니다.")
     finally:
-        # 크롤링이 종료된 경우 offset을 저장하고 드라이버를 종료
-        set_offset(num)
         driver.quit()
 
     # 크롤링 결과 출력
