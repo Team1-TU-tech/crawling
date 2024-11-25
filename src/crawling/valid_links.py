@@ -1,5 +1,4 @@
 import os
-import csv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
@@ -12,13 +11,17 @@ driver = webdriver.Chrome()
 # 크롤링할 기본 URL 설정
 base_url = "https://www.ticketlink.co.kr/help/notice/"
 
-# 유효한 링크 데이터를 저장할 빈 리스트 초기화
+# HTML 저장 디렉토리 설정, 테스트용
+html_save_directory = os.path.join(os.getcwd(), "html_files")
+os.makedirs(html_save_directory, exist_ok=True)  # 디렉토리가 없으면 생성
+
+# 유효한 링크 데이터(공연고유번호)를 저장할 빈 리스트 초기화
 valid_links = []
 
 # 텍스트 파일 경로 설정
 valid_links_filename = os.path.join(os.getcwd(), "valid_links.txt")
 
-# 마지막 고유번호 추출 함수
+# 마지막 고유번호 추출 함수 (크롤링 범위)
 def get_last_id_from_page(driver, base_url):
     try:
         driver.get(base_url)  # 기본 URL로 이동
@@ -32,7 +35,7 @@ def get_last_id_from_page(driver, base_url):
         return None
 
 try:
-    # nTableBody의 첫 번째 고유번호 가져오기
+    # 티켓오픈 공지사항에서 맨 위에 있는 고유번호 (크롤링의 마지막 범위) 가져오기
     last_id = get_last_id_from_page(driver, base_url)
     if last_id is None:
         print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
@@ -40,7 +43,7 @@ try:
         exit()
 
     # 크롤링 시작
-    for csoonID in range(45228, last_id + 1):  # 페이지 내에 있는 가장 마지막 고유번호까지만 추출 반복
+    for csoonID in range(45228, last_id + 1):  # 페이지 내에 있는 가장 마지막 고유번호까지만 추출 반복, 45228은 티켓오픈 첫 번호
         current_url = f"{base_url}{csoonID}"
         try:
             driver.get(current_url)
@@ -50,7 +53,7 @@ try:
             th_value = None
 
             try:
-                # list_view HTML 긁어오기
+                # list_view HTML (티켓오픈예정의 raw data)
                 dl_list_view = driver.find_element(By.CLASS_NAME, "list_view").get_attribute("outerHTML")
                 
                 # 카테고리(th 값) 확인
@@ -82,13 +85,17 @@ try:
                     valid_link_data = {
                         "csoonID": csoonID,
                         "showID": show_id,
-                        "HTML": dl_list_view
                     }
                     valid_links.append(valid_link_data)
 
-                    # 텍스트 파일에 저장 (중간에 중단되어도 데이터가 남도록) -> 지금은 한 파일에 append 되도록 되어있음. 실제로는 csoonID 마다 파일생성?
+                    # 텍스트 파일에 저장 (중간에 중단되어도 데이터가 남도록) 
                     with open(valid_links_filename, mode='a', encoding='utf-8') as file:
-                        file.write(f"csoonID: {csoonID}, showID: {show_id}, HTML: {dl_list_view}\n")
+                        file.write(f"csoonID: {csoonID}, showID: {show_id}\n")
+
+                    # HTML 파일로 저장
+                    html_filename = os.path.join(html_save_directory, f"{csoonID}.html")
+                    with open(html_filename, mode='w', encoding='utf-8') as html_file:
+                        html_file.write(dl_list_view)
 
                 else:  # 스포츠, 변경/취소, 시스템, 기타 카테고리
                     print(f"csoonID: {csoonID}, 카테고리: {th_value} / >>넘어갑니다<<")
@@ -105,4 +112,5 @@ finally:
     driver.quit()
 
 # 결과 출력
-print(f"크롤링 완료! 유효한 링크 데이터: {valid_links}")
+# print(f"크롤링 완료! 유효한 링크 데이터: {valid_links}")
+# print(f"티켓오픈예정 HTML raw data: {dl_list_view}")

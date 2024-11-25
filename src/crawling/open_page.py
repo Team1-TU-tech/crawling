@@ -5,15 +5,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import re
 from datetime import datetime
-
-# 테스트할 웹사이트 URL
-test_url = "https://www.ticketlink.co.kr/help/notice/60856"  
+from valid_links import valid_links  # valid_links.py에서 valid_links 리스트 가져오기
+import os
 
 # Selenium WebDriver 설정
 options = webdriver.ChromeOptions()
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 driver = webdriver.Chrome(options=options)
+
+# 텍스트 파일 저장 디렉토리 설정, 테스트용
+txt_save_directory = os.path.join(os.getcwd(), "txt_files")
+os.makedirs(txt_save_directory, exist_ok=True)  # 디렉토리가 없으면 생성
 
 def normalize_date(raw_date, base_year=None):
     if base_year is None:
@@ -76,9 +79,14 @@ def normalize_datetime_range(raw_text, base_year=None):
 
 
 try:
-    driver.get(test_url)
 
-    wait = WebDriverWait(driver, 10)
+    # 각 csoonID에 대해 정보 크롤링
+    for link_data in valid_links:
+        csoonID = link_data["csoonID"]  # valid_links에서 csoonID 가져오기
+        test_url = f"https://www.ticketlink.co.kr/help/notice/{csoonID}"
+        driver.get(test_url)
+
+        wait = WebDriverWait(driver, 10)
 
     ################## 데이터 초기화 ##################
     poster_url = None
@@ -94,8 +102,9 @@ try:
     open_date = None
     pre_open_date = None
     performance_description = None
+    category = None
     exclusive = 0
-
+    
     ################## 전체 텍스트 추출 ##################
     page_text = driver.find_element(By.TAG_NAME, "body").text
 
@@ -132,7 +141,7 @@ try:
     match_rating = re.search(r"관람\s*등급\s*[:：\-]?\s*([^\n]+)", page_text)
     rating = match_rating.group(1).strip() if match_rating else None
 
-    ################## 포스터 URL, 제목, 예매서 링크 ##################
+    ################## 포스터 URL, 제목, 예매처 링크 ##################
     try:
         poster_element = wait.until(
             EC.presence_of_element_located((By.CLASS_NAME, "thumb"))
@@ -154,6 +163,14 @@ try:
             title = full_title.split("\u200b")[0].strip()
         else:
             title = full_title
+
+        # 제목 키워드 기준으로 카테고리 간단히 분류
+        if "뮤지컬" in title or "연극" in title:
+            category = "뮤지컬/연극"
+        elif "콘서트" in title:
+            category = "콘서트"
+        else:
+            category = "전시/행사"
 
         try:
             last_dd = wait.until(
@@ -223,7 +240,7 @@ try:
 
     ################################공연설명##########################################
 
-    def extract_performance_description_with_keywords(full_text):
+    def description(full_text):
         try:
             start_keywords = [
                 "공연내용", "공연 내용", "[공연내용]", "[공연 내용]",
@@ -263,45 +280,32 @@ try:
             print(f"공연설명 추출 중 오류 발생: {e}")
             return "공연설명 추출 실패"
 
-    performance_description = extract_performance_description_with_keywords(full_text)
-    
-    ################## 데이터 변수로 저장 ##################
-    poster_url_var = poster_url
-    title_var = title
-    ticket_link_var = ticket_link
-    start_date_var = start_date
-    end_date_var = end_date
-    show_time_var = show_time
-    location_var = location
-    price_var = price
-    running_time_var = running_time
-    rating_var = rating
-    open_date_var = open_date
-    pre_open_date_var = pre_open_date
-    performance_description_var = performance_description
-    exclusive_var = exclusive
+    performance_description = description(full_text)
     
     ################## 데이터 출력 ##################
-    variables = {
-        'poster_url': poster_url_var,
-        'title': title_var,
-        'ticket_link': ticket_link_var,
-        'start_date': start_date_var,
-        'end_date': end_date_var,
-        'show_time': show_time_var,
-        'location': location_var,
-        'price': price_var,
-        'running_time': running_time_var,
-        'rating': rating_var,
-        'open_date': open_date_var,
-        'pre_open_date': pre_open_date_var,
-        'performance_description': performance_description_var,
-        'exclusive': exclusive_var
+    open_page = {
+        'poster_url': poster_url,
+        'title': title,
+        'ticket_link': ticket_link,
+        'start_date': start_date,
+        'end_date': end_date,
+        'show_time': show_time,
+        'location': location,
+        'price': price,
+        'running_time': running_time,
+        'rating': rating,
+        'open_date': open_date,
+        'pre_open_date': pre_open_date,
+        'exclusive': exclusive,
+        'category': category,
+        'performance_description': performance_description
     }
     
-    for key, value in variables.items():
-        print(f"{key}: {value}")
-
+    # csoonID를 파일 이름으로 저장
+    txt_filename = os.path.join(txt_save_directory, f"{csoonID}.txt")
+    with open(txt_filename, mode='w', encoding='utf-8') as txt_file:
+        for key, value in open_page.items():
+            txt_file.write(f"{key}: {value}\n")
 except Exception as e:
     print(f"오류 발생: {e}")
 finally:
