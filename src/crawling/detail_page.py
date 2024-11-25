@@ -62,6 +62,8 @@ try:
     # 출연진 데이터와 아티스트 데이터는 변수에 저장
     print("Cast Data:", cast_data)
     print("Artist Data:", artist_data)
+
+    # 상세페이지의 HTML은 valid_links.txt 에 함께 넣을지?
     print("HTML:", main_content_html)
 except NoSuchElementException:
     print("'common_container page_detail' 클래스를 가진 요소를 이 페이지에서 찾을 수 없습니다. 클래스 이름이 변경되었거나 요소가 동적으로 로드되었는지 확인하십시오.")
