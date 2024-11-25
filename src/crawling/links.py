@@ -4,7 +4,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 import time
 
-def get_link(start_id=50016):
+def get_link(start_id=51820):
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
     options.add_argument('--disable-dev-shm-usage')  # 공유 메모리 사용 비활성화
