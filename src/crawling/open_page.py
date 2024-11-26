@@ -292,10 +292,10 @@ def crawl_data(driver, csoonID):
         # 전체 텍스트 추출
         page_text = driver.find_element(By.TAG_NAME, "body").text
 
-        ################## 공연 정보 추출 ##################
+        ################## 본문 공연 정보 추출 ##################
         start_date, end_date, show_time, location, price, running_time, rating = extract_performance_info(page_text)
 
-        ################## 포스터, 제목, 예매처 링크 ##################
+        ################## 헤더 공연 정보 추출 ##################
         poster_url, title, category, ticket_link, exclusive = extract_header(wait)
 
         ################## 예매일 추출 ##################

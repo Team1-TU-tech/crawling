@@ -21,7 +21,7 @@ def initialize_driver():
     return webdriver.Chrome(options=options)
 
 # 마지막 고유번호 추출 (크롤링 할 마지막 범위) 
-def last_id(driver, base_url):
+def extract_last_id(driver, base_url):
     try:
         driver.get(base_url)
         first_tr = driver.find_element(By.ID, "nTableBody").find_element(By.TAG_NAME, "tr")
@@ -94,7 +94,7 @@ def valid_links():
 
     try:
         # 마지막 ID 가져오기
-        last_id = last_id(driver, base_url)
+        last_id = extract_last_id(driver, base_url)
         if last_id is None:
             print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
             return
@@ -107,3 +107,5 @@ def valid_links():
         driver.quit()
         print("크롤링 완료!")
         print(f"총 {len(valid_links)}개의 유효한 링크를 수집했습니다.")
+
+valid_links()
