@@ -5,9 +5,14 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from valid_links import * 
+#from valid_links import * 
 
-driver = initialize_driver()
+#driver = initialize_driver()
+
+options = webdriver.ChromeOptions()
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+webdriver.Chrome(options=options)
 
 # 날짜 xxxx.xx.xx 형식 정규화
 def normalize_date(raw_date, base_year=None):
@@ -81,7 +86,7 @@ def normalize_datetime(raw_text):
 def extract_description(full_text):
     try:
         start_keywords = ["공연내용", "공연 내용", "[공연내용]", "[공연 내용]", "공연소개", "공연 소개", "[공연소개]", "[공연 소개]", "◈공연소개"]
-        end_keywords = ["기획사정보", "캐스팅", "기획사 정보", "공지사항"]
+        end_keywords = ["기획사정보", "캐스팅", "기획사 정보", "공지사항", "출연자 정보", "출연자", "출연자정보"]
         description = []  # 공연 설명을 저장할 리스트
         is_description_section = False  # 설명 섹션 여부 플래그
         empty_line_count = 0  # 빈 줄 카운트
@@ -275,7 +280,7 @@ def extract_open_date(driver, page_text):
     return open_date, pre_open_date
     
 
-def crawl_data(driver, csoonID):
+def crawl_open_page(driver, csoonID):
     csoon_url = f"https://www.ticketlink.co.kr/help/notice/{csoonID}"
     driver.get(csoon_url)
     print(f"페이지 로드 완료: {driver.current_url}")
@@ -321,5 +326,3 @@ def crawl_data(driver, csoonID):
         print(f"공연 정보 추출 중 오류 발생: {e}")
     
     return data
-
-crawl_data(driver)

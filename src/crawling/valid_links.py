@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from urllib3.exceptions import ReadTimeoutError
+from open_page import *
 
 # 설정 상수
 base_url = "https://www.ticketlink.co.kr/help/notice/"
@@ -33,7 +34,7 @@ def extract_last_id(driver, base_url):
         print("마지막 고유번호를 찾을 수 없습니다.")
         return None
 
-# 오픈예정 페이지 크롤링
+# 오픈예정 페이지 크롤링 (1. 유효햔 (csoonID, showID) 2. 오픈예정페이지 html 저장)
 def crawl_page(driver, csoonID, html_save_directory, valid_links):
     current_url = f"{base_url}{csoonID}"
     try:
@@ -41,7 +42,7 @@ def crawl_page(driver, csoonID, html_save_directory, valid_links):
 
         # 데이터 초기화
         dl_list_view = None
-        show_id = None
+        showID = None
         th_value = None
 
         try:
@@ -62,16 +63,16 @@ def crawl_page(driver, csoonID, html_save_directory, valid_links):
 
                 if btn_reserve:
                     reserve_link = btn_reserve[0].get_attribute("href")
-                    show_id = reserve_link.split("/")[-1]  # 공연 고유번호 추출
+                    showID = reserve_link.split("/")[-1]  # 공연 고유번호 추출
             except NoSuchElementException:
-                show_id = None
+                showID = None
 
             # 공연 데이터 저장
             if th_value == "공연":
-                print(f"csoonID: {csoonID} / 카테고리: {th_value} / 고유번호: {show_id} / HTML 저장완료")
+                print(f"csoonID: {csoonID} / 카테고리: {th_value} / 고유번호: {showID} / HTML 저장완료")
 
                 # 유효한 ID 저장
-                valid_links.append({"csoonID": csoonID, "showID": show_id})
+                valid_links.append({"csoonID": csoonID, "showID": showID})
 
                 # HTML 파일로 저장
                 html_filename = os.path.join(html_save_directory, f"{csoonID}.html")
@@ -86,7 +87,7 @@ def crawl_page(driver, csoonID, html_save_directory, valid_links):
     except (WebDriverException, ReadTimeoutError) as e:
         print(f"오류 발생 (csoonID: {csoonID}): {e}")
 
-def valid_links():
+def collect_valid_links():
 
     driver = initialize_driver()
     html_save_directory = setup_directories()
@@ -97,15 +98,38 @@ def valid_links():
         last_id = extract_last_id(driver, base_url)
         if last_id is None:
             print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
-            return
+            return []   
+    
 
         # 크롤링 실행
-        for csoonID in range(45228, last_id + 1):
+        for csoonID in range(60870, last_id + 1): #45228 #60850
             crawl_page(driver, csoonID, html_save_directory, valid_links)
+
 
     finally:
         driver.quit()
         print("크롤링 완료!")
         print(f"총 {len(valid_links)}개의 유효한 링크를 수집했습니다.")
+        print(valid_links)
+    return valid_links
 
-valid_links()
+
+def crawl_valid_links(valid_links):
+    driver = initialize_driver()
+
+    try:
+        for link in valid_links:
+            csoonID = link['csoonID']
+            print(f"open_page 데이터 수집을 시작합니다: csoonID = {csoonID}")
+            crawl_open_page(driver, csoonID) #open_page.py에서 import
+
+    finally:
+        driver.quit()
+        print("추가 데이터 수집 완료!")
+
+valid_links = collect_valid_links()
+
+if valid_links:
+    crawl_valid_links(valid_links)
+else:
+    print("수집된 유효한 링크가 없습니다.")
