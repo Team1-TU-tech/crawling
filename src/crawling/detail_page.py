@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 import time
+#from valid_links import *
 
 def extract_performance_data(driver):
     """Extract main performance data such as location, running time, period, rating, and price."""
@@ -19,6 +20,11 @@ def extract_performance_data(driver):
     }
 
     try:
+        # # 쇼 페이지로 이동
+        # show_url = f"https://www.ticketlink.co.kr/product/{showID}"  # showID를 이용한 URL 생성
+        # driver.get(show_url)
+        # print(f"쇼 페이지로 이동: {show_url}")
+
         # Extract location
         location_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div"
         location_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, location_xpath)))
@@ -53,7 +59,8 @@ def extract_performance_data(driver):
         print(f"데이터를 찾을 수 없습니다: {e}")
     except TimeoutException as e:
         print(f"시간 초과로 데이터를 가져오지 못했습니다: {e}")
-
+    except Exception as e:
+        print(f"기타 오류 발생: {e}")
     return data
 
 def extract_cast_data(driver):
@@ -94,7 +101,7 @@ def extract_cast_data(driver):
 
     return cast_data, artist_data
 
-def save_minified_html(driver, output_file="minified_ticketlink.html"):
+def save_detail_html(driver, output_file="detail.html"):
     """Save the current page's HTML content without extra whitespace."""
     try:
         html_content = driver.page_source
@@ -120,7 +127,7 @@ def main():
         cast_data, artist_data = extract_cast_data(driver)
 
         # Save HTML
-        save_minified_html(driver)
+        save_detail_html(driver)
 
         # Print extracted data
         print("공연 데이터:")

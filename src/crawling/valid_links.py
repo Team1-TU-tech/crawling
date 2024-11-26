@@ -105,7 +105,8 @@ def collect_valid_links():
         start_id = get_offset()
 
         # 크롤링 실행
-        for csoonID in range(start_id, last_id + 1): #45228 #60850
+        # for csoonID in range(start_id, last_id + 1): #45228 #60850
+        for csoonID in range(60850, 60857): #45228 #60850
             try:
                 crawl_ID(driver, csoonID, html_save_directory, valid_links)
                 # 유효한 링크 크롤링 후 offset 저장
@@ -128,8 +129,15 @@ def crawl_valid_links(valid_links):
         for link in valid_links:
             csoonID = link['csoonID']
             print(f"open_page 데이터 수집을 시작합니다: csoonID = {csoonID}")
-            crawl_open_page(driver, csoonID) #open_page.py에서 import
+            crawl_open_page(driver, csoonID, valid_links) #open_page.py에서 import
 
+
+            # performance_data = crawl_open_page(driver, csoonID, valid_links)
+            # if performance_data:
+            #     print(f"csoonID {csoonID}에 대한 데이터 수집 완료: {performance_data}")
+            # else:
+            #     print(f"csoonID {csoonID}에 대한 데이터 수집 실패.")
+                
     finally:
         driver.quit()
         print("추가 데이터 수집 완료!")

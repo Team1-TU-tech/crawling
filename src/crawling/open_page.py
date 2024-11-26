@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from detail_page import extract_performance_data
+
 
 options = webdriver.ChromeOptions()
 options.add_argument('--no-sandbox')
@@ -277,7 +279,9 @@ def extract_open_date(driver, page_text):
     return open_date, pre_open_date
     
 
-def crawl_open_page(driver, csoonID):
+
+def crawl_open_page(driver, csoonID, valid_links):
+
     csoon_url = f"https://www.ticketlink.co.kr/help/notice/{csoonID}"
     driver.get(csoon_url)
     print(f"페이지 로드 완료: {driver.current_url}")
@@ -318,8 +322,41 @@ def crawl_open_page(driver, csoonID):
         })
 
         print(data)
+        
+        # None 값이 있으면 detail_page.py의 extract_performance_data로 업데이트
+        #if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']) and valid_links.get(csoonID, {}).get("showID"):
+        if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']) and any(
+        link for link in valid_links if link['csoonID'] == csoonID and 'showID' in link):
+            print("추출된 데이터 중 일부가 None입니다. detail_page.py의 extract_performance_data로 업데이트 시도.")
 
+            try:
+                wait = WebDriverWait(driver, 30)  # 최대 30초 대기
+
+                # 각 요소가 로드될 때까지 기다리기
+                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div")))
+                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '관람시간')]/following-sibling::div")))
+                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '기간')]/following-sibling::div")))
+                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '관람등급')]/following-sibling::div")))
+                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '가격')]/following-sibling::div/ul[@class='product_info_sublist']/li[@class='product_info_subitem']")))
+
+                # detail_page.py의 extract_performance_data 실행
+                performance_update = extract_performance_data(driver)
+
+                # None인 값만 업데이트
+                for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']:
+                    if data[key] is None and performance_update.get(key) is not None:
+                        data[key] = performance_update[key]
+
+                print(f"\n데이터 업데이트 완료: {data}\n")
+                
+            except Exception as e:
+                print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
+            finally:
+                if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']):
+                    print("추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 정보를 찾을 수 없습니다.\n")
+        else:
+            print("데이터 업데이트 조건에 맞지 않습니다. \n")
     except Exception as e:
-        print(f"공연 정보 추출 중 오류 발생: {e}")
+        print(f"공연 정보 추출 중 오류 발생: {e}\n")
     
     return data
