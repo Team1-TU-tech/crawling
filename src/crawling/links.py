@@ -33,7 +33,7 @@ def get_link(start_id=51820, max_retries=3, retry_delay=5):
                     error_image = driver.find_elements(By.CSS_SELECTOR, 'img[src="http://tkfile.yes24.com/images/errorImg_ticket.gif"]')
 
                     if error_image:
-                        if num >= 51600:  # 마지막 페이지 조건
+                        if num >= 52000:  # 마지막 페이지 조건
                             print(f"마지막 페이지 {num}에서 크롤링을 종료합니다.")
                             return all_links
                         else:
