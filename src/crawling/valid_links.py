@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from urllib3.exceptions import ReadTimeoutError
 from open_page import *
+from offset import *
 
 # 설정 상수
 base_url = "https://www.ticketlink.co.kr/help/notice/"
@@ -35,7 +36,7 @@ def extract_last_id(driver, base_url):
         return None
 
 # 오픈예정 페이지 크롤링 (1. 유효햔 (csoonID, showID) 2. 오픈예정페이지 html 저장)
-def crawl_page(driver, csoonID, html_save_directory, valid_links):
+def crawl_ID(driver, csoonID, html_save_directory, valid_links):
     current_url = f"{base_url}{csoonID}"
     try:
         driver.get(current_url)
@@ -74,6 +75,7 @@ def crawl_page(driver, csoonID, html_save_directory, valid_links):
                 # 유효한 ID 저장
                 valid_links.append({"csoonID": csoonID, "showID": showID})
 
+##############html list####################
                 # HTML 파일로 저장
                 html_filename = os.path.join(html_save_directory, f"{csoonID}.html")
                 with open(html_filename, mode='w', encoding='utf-8') as html_file:
@@ -100,12 +102,17 @@ def collect_valid_links():
             print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
             return []   
     
+        start_id = get_offset()
 
         # 크롤링 실행
-        for csoonID in range(60870, last_id + 1): #45228 #60850
-            crawl_page(driver, csoonID, html_save_directory, valid_links)
-
-
+        for csoonID in range(start_id, last_id + 1): #45228 #60850
+            try:
+                crawl_ID(driver, csoonID, html_save_directory, valid_links)
+                # 유효한 링크 크롤링 후 offset 저장
+                set_offset(csoonID + 1)
+            except Exception as e:
+                print(f"오류 발생하여 csoonID: {csoonID}에서 중단되었습니다. 오류: {e}")
+                break  # 오류 발생 시 현재까지 크롤링된 ID를 저장하고 종료
     finally:
         driver.quit()
         print("크롤링 완료!")
@@ -127,6 +134,7 @@ def crawl_valid_links(valid_links):
         driver.quit()
         print("추가 데이터 수집 완료!")
 
+#####실행#####
 valid_links = collect_valid_links()
 
 if valid_links:

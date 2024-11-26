@@ -7,6 +7,10 @@ from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 import time
 
+def initialize_driver():
+    """Initialize the WebDriver."""
+    return webdriver.Chrome()
+
 def extract_performance_data(driver):
     """Extract main performance data such as location, running time, period, rating, and price."""
     data = {
@@ -108,7 +112,7 @@ def save_minified_html(driver, output_file="minified_ticketlink.html"):
         print(f"HTML 저장 중 오류 발생: {e}")
 
 def main():
-    driver = webdriver.Chrome()
+    driver = initialize_driver()
     url = "https://www.ticketlink.co.kr/product/52656"
     driver.get(url)
 
