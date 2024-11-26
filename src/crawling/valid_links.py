@@ -116,8 +116,7 @@ def collect_valid_links():
                 break  # 오류 발생 시 현재까지 크롤링된 ID를 저장하고 종료
     finally:
         driver.quit()
-        print("크롤링 완료!")
-        print(f"총 {len(valid_links)}개의 유효한 링크를 수집했습니다.")
+        print(f"*****valid links 저장 완료!***** / 총 {len(valid_links)}개의 유효한 링크를 수집했습니다.")
         print(valid_links)
     return valid_links
 
@@ -128,16 +127,9 @@ def crawl_valid_links(valid_links):
     try:
         for link in valid_links:
             csoonID = link['csoonID']
-            print(f"open_page 데이터 수집을 시작합니다: csoonID = {csoonID}")
+            print(f"\nopen_page 데이터 수집을 시작합니다: csoonID = {csoonID}")
             crawl_open_page(driver, csoonID, valid_links) #open_page.py에서 import
 
-
-            # performance_data = crawl_open_page(driver, csoonID, valid_links)
-            # if performance_data:
-            #     print(f"csoonID {csoonID}에 대한 데이터 수집 완료: {performance_data}")
-            # else:
-            #     print(f"csoonID {csoonID}에 대한 데이터 수집 실패.")
-                
     finally:
         driver.quit()
         print("추가 데이터 수집 완료!")

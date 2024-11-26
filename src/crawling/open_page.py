@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from detail_page import extract_performance_data
+from detail_page import *
 
 
 options = webdriver.ChromeOptions()
@@ -294,6 +294,9 @@ def crawl_open_page(driver, csoonID, valid_links):
         'open_date': None, 'pre_open_date': None, 'exclusive': 0, 'category': None, 'performance_description': None
     }
 
+    artist_data = []  
+    cast_data = []
+
     try:
         # 전체 텍스트 추출
         page_text = driver.find_element(By.TAG_NAME, "body").text
@@ -321,42 +324,37 @@ def crawl_open_page(driver, csoonID, valid_links):
             'performance_description': performance_description
         })
 
-        print(data)
-        
-        # None 값이 있으면 detail_page.py의 extract_performance_data로 업데이트
-        #if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']) and valid_links.get(csoonID, {}).get("showID"):
-        if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']) and any(
-        link for link in valid_links if link['csoonID'] == csoonID and 'showID' in link):
-            print("추출된 데이터 중 일부가 None입니다. detail_page.py의 extract_performance_data로 업데이트 시도.")
+        print(f"\n공연 정보\n{data}\n")
 
+        # 예매 링크로 이동하여 추가 정보 추출 (artist_data, cast_data 포함)
+        if data.get('ticket_link'):
             try:
-                wait = WebDriverWait(driver, 30)  # 최대 30초 대기
+                driver.get(data['ticket_link'])
+                print(f"\n*****추가 데이터 추출을 위해 페이지 이동: {data['ticket_link']}*****\n")
 
-                # 각 요소가 로드될 때까지 기다리기
+                # 추가 정보 추출 (공연 세부 정보, 캐스트, 아티스트 데이터)
                 wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div")))
-                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '관람시간')]/following-sibling::div")))
-                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '기간')]/following-sibling::div")))
-                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '관람등급')]/following-sibling::div")))
-                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '가격')]/following-sibling::div/ul[@class='product_info_sublist']/li[@class='product_info_subitem']")))
-
-                # detail_page.py의 extract_performance_data 실행
                 performance_update = extract_performance_data(driver)
+                cast_data, artist_data = extract_cast_data(driver)
 
                 # None인 값만 업데이트
                 for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']:
                     if data[key] is None and performance_update.get(key) is not None:
                         data[key] = performance_update[key]
 
-                print(f"\n데이터 업데이트 완료: {data}\n")
-                
+                print(f"data 업데이트 완료\n{data}\n")
+                print(f"cast_data\n{cast_data}\n")
+                print(f"artist_data\n{artist_data}\n")
+
             except Exception as e:
                 print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
             finally:
                 if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']):
                     print("추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 정보를 찾을 수 없습니다.\n")
         else:
-            print("데이터 업데이트 조건에 맞지 않습니다. \n")
+            print("예매 링크가 없어 추가 정보를 가져올 수 없습니다.\n")
+
     except Exception as e:
         print(f"공연 정보 추출 중 오류 발생: {e}\n")
-    
-    return data
+
+    return data, cast_data, artist_data

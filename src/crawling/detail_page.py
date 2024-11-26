@@ -6,7 +6,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 import time
-#from valid_links import *
 
 def extract_performance_data(driver):
     """Extract main performance data such as location, running time, period, rating, and price."""
@@ -20,11 +19,6 @@ def extract_performance_data(driver):
     }
 
     try:
-        # # 쇼 페이지로 이동
-        # show_url = f"https://www.ticketlink.co.kr/product/{showID}"  # showID를 이용한 URL 생성
-        # driver.get(show_url)
-        # print(f"쇼 페이지로 이동: {show_url}")
-
         # Extract location
         location_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div"
         location_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, location_xpath)))
@@ -133,6 +127,8 @@ def main():
         print("공연 데이터:")
         for key, value in performance_data.items():
             print(f"{key}: {value}")
+        
+        cast_data, artist_data = extract_cast_data(driver)
         print("Cast Data:", cast_data)
         print("Artist Data:", artist_data)
 
