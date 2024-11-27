@@ -209,7 +209,7 @@ def extract_header(wait):
             ticket_link = link_element.get_attribute("href")
         
         except NoSuchElementException:
-            ticket_link = "예매 링크 없음"
+            ticket_link = None
 
         return poster_url, title, category, ticket_link, exclusive
     
@@ -282,20 +282,31 @@ def extract_open_date(driver, page_text):
 
 def crawl_open_page(driver, csoonID, valid_links):
 
+    # HTML 저장할 리스트
+    crawling_list = []
+
     csoon_url = f"https://www.ticketlink.co.kr/help/notice/{csoonID}"
     driver.get(csoon_url)
     print(f"페이지 로드 완료: {driver.current_url}")
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 20)
+
+    # 오픈예정 페이지 HTML 추출
+    try:
+        dl_list_view = driver.find_element(By.CLASS_NAME, "list_view").get_attribute("outerHTML")
+    except NoSuchElementException:
+        print(f"오픈예정 페이지의 HTML을 찾을 수 없습니다: csoonID={csoonID}")
+        dl_list_view = None
 
     # 데이터 초기화
     data = {
-        'poster_url': None, 'title': None, 'ticket_link': None, 'start_date': None, 'end_date': None,
+        'poster_url': None, 'title': None, 'host' : {'link': None, 'site_id' : None}, 'start_date': None, 'end_date': None,
         'show_time': None, 'location': None, 'price': None, 'running_time': None, 'rating': None,
         'open_date': None, 'pre_open_date': None, 'exclusive': 0, 'category': None, 'performance_description': None
     }
 
     artist_data = []  
     cast_data = []
+    detail_html = None 
 
     try:
         # 전체 텍스트 추출
@@ -317,7 +328,7 @@ def crawl_open_page(driver, csoonID, valid_links):
 
         # 데이터 업데이트
         data.update({
-            'poster_url': poster_url, 'title': title, 'ticket_link': ticket_link,
+            'poster_url': poster_url, 'title': title, 'host' : {'link': ticket_link, 'site_id' : 3},
             'start_date': start_date, 'end_date': end_date, 'show_time': show_time,
             'location': location, 'price': price, 'running_time': running_time, 'rating': rating,
             'open_date': open_date, 'pre_open_date': pre_open_date, 'exclusive': exclusive, 'category': category,
@@ -326,11 +337,11 @@ def crawl_open_page(driver, csoonID, valid_links):
 
         print(f"\n공연 정보\n{data}\n")
 
-        # 예매 링크로 이동하여 추가 정보 추출 (artist_data, cast_data 포함)
-        if data.get('ticket_link'):
+        # 예매 링크 존재 여부 확인
+        if ticket_link and ticket_link != None:
             try:
-                driver.get(data['ticket_link'])
-                print(f"\n*****추가 데이터 추출을 위해 페이지 이동: {data['ticket_link']}*****\n")
+                driver.get(ticket_link)
+                print(f"\n*****추가 데이터 추출을 위해 페이지 이동: {ticket_link}*****\n")
 
                 # 추가 정보 추출 (공연 세부 정보, 캐스트, 아티스트 데이터)
                 wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div")))
@@ -346,15 +357,27 @@ def crawl_open_page(driver, csoonID, valid_links):
                 print(f"cast_data\n{cast_data}\n")
                 print(f"artist_data\n{artist_data}\n")
 
+                # 상세 페이지 HTML 추출
+                detail_html = extract_detail_html(driver)
+
             except Exception as e:
                 print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
-            finally:
-                if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']):
-                    print("추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 정보를 찾을 수 없습니다.\n")
+                ticket_link = None
+
         else:
             print("예매 링크가 없어 추가 정보를 가져올 수 없습니다.\n")
 
     except Exception as e:
         print(f"공연 정보 추출 중 오류 발생: {e}\n")
 
-    return data, cast_data, artist_data
+    # 오픈예정 페이지와 상세 페이지 HTML을 crawling_list에 저장
+    crawling_list.append({"open_page": dl_list_view, "detail_page": detail_html})
+
+    #print(f"crawling_list에 저장된 데이터: {crawling_list}")
+
+    # 예외 처리 - 추가적인 상세 페이지 정보 업데이트를 시도했지만 필요한 정보를 찾을 수 없을 때
+    if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']):
+        print("추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 정보를 찾을 수 없습니다.\n")
+
+    return data, cast_data, artist_data, crawling_list
+ 
