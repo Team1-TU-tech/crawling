@@ -22,6 +22,7 @@ pdm install
 python valid_links.py
 ```
 
+# Code Description
 ## valid_links.py
 - extract_last_id: base_url 페이지에서 첫 번째 공연 ID를 찾아 크롤링 범위 마지막이 될 **고유 번호 추출**.
 - crawl_ID: 특정 csoonID에 대해 공연의 카테고리, 예매 링크 등을 크롤링하여 **유효한 링크를 valid_links 리스트에 저장**.
