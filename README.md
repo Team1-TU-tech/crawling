@@ -43,7 +43,7 @@ python valid_links.py
 - extract_performance_data: **공연 정보(장소, 관람시간, 기간, 관람등급, 가격 정보)** 추출
 - extract_cast_data: **캐스팅 및 아티스트 정보** 추출
 - extract_detail_html: **페이지의 전체 HTML** 추출
-- 
+  
 ## offset.py
-offset.ini 파일을 통해 설정된 **offset** 값을 관리하고, 없을 경우 **기본값**을 설정.
+offset.ini 파일을 통해 설정된 **offset** 값을 관리하고, 없을 경우 **기본값**을 설정.  
 크롤링이 중단되는 지점에서 offset 값을 기록하고, 이후 다시 시작할 때 해당 offset 값을 기준으로 크롤링을 재개.
