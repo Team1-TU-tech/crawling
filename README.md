@@ -1,5 +1,27 @@
 # ticket link crawling
 
+# USAGE
+## 1. 프로젝트 클론
+```
+git clone <repository_url>
+cd <repository_directory>
+```
+
+## 2. 가상환경 활성화
+```
+source .venv/bin/activate
+```
+
+## 3. 라이브러리 설치
+```
+pdm install
+```
+
+## 4. 크롤링 실행
+```
+python valid_links.py
+```
+
 ## valid_links.py
 - extract_last_id: base_url 페이지에서 첫 번째 공연 ID를 찾아 크롤링 범위 마지막이 될 **고유 번호 추출**.
 - crawl_ID: 특정 csoonID에 대해 공연의 카테고리, 예매 링크 등을 크롤링하여 **유효한 링크를 valid_links 리스트에 저장**.
@@ -24,25 +46,3 @@
 ## offset.py
 offset.ini 파일을 통해 설정된 **offset** 값을 관리하고, 없을 경우 **기본값**을 설정.
 크롤링이 중단되는 지점에서 offset 값을 기록하고, 이후 다시 시작할 때 해당 offset 값을 기준으로 크롤링을 재개.
-
-# USAGE
-## 1. 프로젝트 클론
-```
-git clone <repository_url>
-cd <repository_directory>
-```
-
-## 2. 가상환경 활성화
-```
-source .venv/bin/activate
-```
-
-## 3. 라이브러리 설치
-```
-pdm install
-```
-
-## 4. 크롤링 실행
-```
-python valid_links.py
-```
