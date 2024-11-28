@@ -10,6 +10,7 @@ from detail_page import *
 
 options = webdriver.ChromeOptions()
 options.add_argument('--no-sandbox')
+options.add_argument('--headless')
 options.add_argument('--disable-dev-shm-usage')
 webdriver.Chrome(options=options)
 
@@ -335,7 +336,7 @@ def crawl_open_page(driver, csoonID, valid_links):
             'performance_description': performance_description
         })
 
-        print(f"\n공연 정보\n{data}\n")
+        #print(f"\n공연 정보\n{data}\n")
 
         # 예매 링크 존재 여부 확인
         if ticket_link and ticket_link != None:
@@ -353,9 +354,9 @@ def crawl_open_page(driver, csoonID, valid_links):
                     if data[key] is None and performance_update.get(key) is not None:
                         data[key] = performance_update[key]
 
-                print(f"data 업데이트 완료\n{data}\n")
-                print(f"cast_data\n{cast_data}\n")
-                print(f"artist_data\n{artist_data}\n")
+                #print(f"data 업데이트 완료\n{data}\n")
+                #print(f"cast_data\n{cast_data}\n")
+                #print(f"artist_data\n{artist_data}\n")
 
                 # 상세 페이지 HTML 추출
                 detail_html = extract_detail_html(driver)
@@ -371,13 +372,14 @@ def crawl_open_page(driver, csoonID, valid_links):
         print(f"공연 정보 추출 중 오류 발생: {e}\n")
 
     # 오픈예정 페이지와 상세 페이지 HTML을 crawling_list에 저장
-    crawling_list.append({"open_page": dl_list_view, "detail_page": detail_html})
+    crawling_list.append({f"{csoonID}": dl_list_view + str(detail_html)})
 
-    #print(f"crawling_list에 저장된 데이터: {crawling_list}")
+    print(f"crawling_list에 저장된 데이터: {crawling_list}")
 
     # 예외 처리 - 추가적인 상세 페이지 정보 업데이트를 시도했지만 필요한 정보를 찾을 수 없을 때
     if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']):
         print("추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 정보를 찾을 수 없습니다.\n")
 
-    return data, cast_data, artist_data, crawling_list
+    #return data, cast_data, artist_data, crawling_list
+    return crawling_list
  
