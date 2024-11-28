@@ -31,6 +31,7 @@ def extract_last_id(driver, base_url):
         return last_id
     except NoSuchElementException:
         print("마지막 고유번호를 찾을 수 없습니다.")
+
         return None
 
 # 오픈예정 페이지 크롤링 (1. 유효햔 (csoonID, showID) 2. 오픈예정/디테일 페이지 html 저장)
@@ -128,7 +129,8 @@ def main():
     valid_links = collect_valid_links()
 
     if valid_links:
-        crawl_valid_links(valid_links)
+        test = crawl_valid_links(valid_links)
+        return test
     else:
         print("수집된 유효한 링크가 없습니다.")
 
