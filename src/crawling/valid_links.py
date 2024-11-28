@@ -91,16 +91,18 @@ def collect_valid_links():
             print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
             return []   
     
-        start_id = get_offset()
+        start_id = get_last_id_from_redis('ticketlink')
 
         # 크롤링 실행
         for csoonID in range(start_id, last_id + 1): 
             try:
                 crawl_ID(driver, csoonID, valid_links)
-                # 유효한 링크 크롤링 후 offset 저장
-                set_offset(csoonID + 1)
+                # 유효한 링크 크롤링 후 마지막 처리된 ID를 Redis에 저장
+                update_last_id_in_redis('ticketlink', csoonID + 1)
+
             except Exception as e:
                 print(f"오류 발생하여 csoonID: {csoonID}에서 중단되었습니다. 오류: {e}")
+                update_last_id_in_redis('ticketlink', csoonID)  # 오류 발생 시 마지막 처리된 ID 저장
                 break  # 오류 발생 시 현재까지 크롤링된 ID를 저장하고 종료
     finally:
         driver.quit()
