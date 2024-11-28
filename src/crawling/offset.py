@@ -1,38 +1,36 @@
-import os
-from configparser import ConfigParser
+import redis
 
-# offset.ini 파일을 읽고 저장하는 함수
-def get_path():
-    return os.path.dirname(os.path.abspath(__file__))
+def connect_to_redis():
+    return redis.StrictRedis(
+        host='redis',  # Redis 컨테이너의 호스트 이름
+        port=6379,
+        decode_responses=True
+    )
 
-def get_config(path=None):
-    config_path = path if path else get_path()
-    config = ConfigParser()
-    config_file_path = os.path.join(config_path, "config", "offset.ini")
+def get_last_id_from_redis(ticketlink, default_id=1):
+    r = connect_to_redis()
+    key = 'ticketlink_last_processed_id'  # 크롤러에 맞는 키 생성
+    last_id = r.get(key)
+    if last_id is None:
+        r.set(key, default_id)  # Redis에 기본값 설정
+        return default_id
+    return int(last_id)
 
-    if not os.path.exists(config_file_path):
-        print(f"offset.ini 파일이 {config_file_path}에 존재하지 않으므로 기본값으로 생성합니다.")
-        config['DEFAULT'] = {'offset': '45228'}
-        os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
-        with open(config_file_path, 'w') as configfile:
-            config.write(configfile)
+def update_last_id_in_redis(ticketlink, new_id):
+    """
+    크롤러에 따라 마지막 처리된 ID를 업데이트하는 함수
+    :param crawler_name: 'yes24' 또는 'ticketlink'와 같은 크롤러 이름
+    :param new_id: 새로운 ID
+    """
+    r = connect_to_redis()
+    key = 'ticketlink_last_processed_id'  # 크롤러에 맞는 키 생성
+    r.set(key, new_id)
 
-    config.read(config_file_path)
-    return config
-
+    # 오프셋 가져오기 (Redis 사용)
 def get_offset():
-    try:
-        config = get_config()
-        return int(config["DEFAULT"]["offset"])
-    except KeyError as e:
-        print(f"KeyError: {e} 발생! 설정 파일에서 'offset' 키를 찾을 수 없습니다.")
-        print("기본값 45228을 사용합니다.")
-        return 1
+    return get_last_id_from_redis('ticketlink')  # 'ticketlink_last_processed_id' 키를 사용
 
-def set_offset(offset):
-    config = get_config()
-    config.set("DEFAULT", "offset", str(offset))
-    config_file_path = os.path.join(get_path(), "config", "offset.ini")
-    with open(config_file_path, 'w') as configfile:
-        config.write(configfile)
-    print(f"offset 값을 {offset}으로 저장했습니다.")
+# 오프셋 업데이트 (Redis 사용)
+def set_offset(new_id):
+    update_last_id_in_redis('ticketlink', new_id)  # 'ticketlink_last_processed_id' 키에 새로운 ID 저장
+
