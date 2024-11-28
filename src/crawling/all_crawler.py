@@ -15,7 +15,7 @@ def all_scrap(all_links):
     options.add_argument('--no-sandbox')  # 샌드박스 모드 비활성화 (Docker 환경에서 권장)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
-    #all_links = ['http://ticket.yes24.com/Perf/51674','http://ticket.yes24.com/Perf/51675']
+    all_links = ['http://ticket.yes24.com/Perf/51671']
     #all_links = get_link()
 
     title = ''
@@ -53,6 +53,7 @@ def all_scrap(all_links):
             soup = BeautifulSoup(page_source, 'html.parser')
             
             raw_content = soup.find_all(class_="renew-content")
+            print(raw_content)
             crawling_list.append({"data":raw_content, "title":title})    
 
         except Exception as e:
@@ -66,4 +67,4 @@ def all_scrap(all_links):
 
 # 실행
 if __name__ == "__main__":
-    all_scrap = all_scrap()
+    all_scrap = all_scrap('http://ticket.yes24.com/Perf/51671')
