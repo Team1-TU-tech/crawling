@@ -4,6 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from crawling.detail_page import *
 
@@ -12,7 +14,7 @@ options = webdriver.ChromeOptions()
 options.add_argument('--no-sandbox')
 options.add_argument('--headless')
 options.add_argument('--disable-dev-shm-usage')
-webdriver.Chrome(options=options)
+webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 # 날짜 xxxx.xx.xx 형식 정규화
 def normalize_date(raw_date, base_year=None):

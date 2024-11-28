@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from urllib3.exceptions import ReadTimeoutError
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 from crawling.open_page import *
 from crawling.offset import *
@@ -16,7 +18,7 @@ def initialize_driver():
     options.add_argument('--no-sandbox')
     options.add_argument('--headless')
     options.add_argument('--disable-dev-shm-usage')
-    return webdriver.Chrome(options=options)
+    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 # 마지막 고유번호 추출 (크롤링 할 마지막 범위) 
 def extract_last_id(driver, base_url):
