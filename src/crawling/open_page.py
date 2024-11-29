@@ -366,6 +366,7 @@ def crawl_open_page(driver, csoonID, valid_links):
             except Exception as e:
                 print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
                 ticket_link = None
+                detail_html = ""  # 오류 발생 시 빈 문자열로 처리
 
         else:
             print("예매 링크가 없어 추가 정보를 가져올 수 없습니다.\n")
@@ -376,7 +377,7 @@ def crawl_open_page(driver, csoonID, valid_links):
     detail_html = detail_html if detail_html is not None else ""
     
     # 오픈예정 페이지와 상세 페이지 HTML을 crawling_list에 저장
-    crawling_list.append({"ID": f"{csoonID}", "HTML": dl_list_view+str(detail_html)})
+    crawling_list.append({"ID": f"{csoonID}", "HTML": f"{dl_list_view}{str(detail_html)}"})
 
     print(f"crawling_list에 저장된 데이터: {crawling_list}")
 
