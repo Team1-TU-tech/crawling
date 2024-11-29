@@ -366,7 +366,7 @@ def crawl_open_page(driver, csoonID, valid_links):
             except Exception as e:
                 print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
                 ticket_link = None
-                detail_html = ""  # 오류 발생 시 빈 문자열로 처리
+                
 
         else:
             print("예매 링크가 없어 추가 정보를 가져올 수 없습니다.\n")
