@@ -373,8 +373,6 @@ def crawl_open_page(driver, csoonID, valid_links):
 
     except Exception as e:
         print(f"공연 정보 추출 중 오류 발생: {e}\n")
-    # dl_list_view와 detail_html이 None인 경우 빈 문자열로 처리
-    detail_html = detail_html if detail_html is not None else ""
     
     # 오픈예정 페이지와 상세 페이지 HTML을 crawling_list에 저장
     crawling_list.append({"ID": f"{csoonID}", "HTML": f"{dl_list_view}{str(detail_html)}"})
