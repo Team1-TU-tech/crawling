@@ -1,15 +1,18 @@
 [project]
 name = "crawling"
-version = "0.1.0"
-description = "Default template for PDM package"
+version = "0.2.1"
+description = "yes24 crawling"
 authors = [
     {name = "sunwoo", email = "summerham22@gmail.com"},
 ]
-dependencies = ["selenium>=4.26.1", "webdriver-manager>=4.0.2", "crawling @ file:///${PROJECT_ROOT}/"]
+dependencies = ["selenium>=4.26.1", "webdriver-manager>=4.0.2"]
 requires-python = "==3.11.*"
 readme = "README.md"
 license = {text = "MIT"}
 
 
 [tool.pdm]
-distribution = false
+distribution = true
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]

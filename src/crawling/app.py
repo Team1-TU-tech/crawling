@@ -6,17 +6,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from links import get_link  # 링크를 가져오는 함수
-
-# 크롤링할 링크들 (예시로 일부 링크를 추가)
-#all_links = get_link()
-all_links = ['http://ticket.yes24.com/Perf/503']
+from utils import set_offset
 
 def scrape_data():
     # Chrome 드라이버 설정
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-
+    
+    all_links = get_link(driver)
     # 크롤링할 데이터 저장용 리스트
     data = []
 
@@ -66,7 +64,7 @@ def scrape_data():
 
             # 호스팅 서비스 사업자 정보
             hosting_provider = driver.find_element(By.CSS_SELECTOR, '.footxt p').text if driver.find_element(By.CSS_SELECTOR, '.footxt p').text else None
-            organizer_info = driver.find_element(By.CSS_SELECTOR, '#divPerfOrganization').text if driver.find_element(By.CSS_SELECTOR, '#divPerfOrganization').text else None
+            organizer_info = driver.find_element(By.CSS_SELECTOR, '#divPerfOrganization').text if driver.find_element(By.CSS_SELECTOR, '#divPerfOrganization') else None
 
             # 데이터를 리스트에 추가
             data.append({
@@ -85,13 +83,14 @@ def scrape_data():
                 'hosting_provider': hosting_provider,  # 호스팅 서비스 사업자 정보 추가
                 'organizer': organizer_info,  # 기획사 정보 추가
                 })
+            print(data)
         except Exception as e:
             print(f"페이지에서 오류 발생: {e}")
             continue  # 오류가 발생해도 계속해서 다음 링크를 크롤링
 
     # 크롬 드라이버 종료
     driver.quit()
-    print(data)
+
     return data
 
 # 실행
