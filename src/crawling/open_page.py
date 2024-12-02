@@ -300,7 +300,7 @@ def crawl_open_page(driver, csoonID, valid_links):
     # 데이터 초기화
     data = {
         'poster_url': None, 'title': None, 'host' : {'link': None, 'site_id' : None}, 'start_date': None, 'end_date': None,
-        'show_time': None, 'location': None, 'price': None, 'running_time': None, 'rating': None,
+        'show_time': None, 'location': None, 'region': None, 'price': None, 'running_time': None, 'rating': None,
         'open_date': None, 'pre_open_date': None, 'exclusive': 0, 'category': None, 'performance_description': None
     }
 
@@ -326,11 +326,19 @@ def crawl_open_page(driver, csoonID, valid_links):
         full_text = announcement_section.text.strip()
         performance_description = extract_description(full_text)
 
+
+        # Kakao 지도에서 주소 크롤링
+        region = get_location(location)  
+        if region:
+            print(f"지역: {region}")
+        else:
+            print("지역을 찾을 수 없습니다.")
+
         # 데이터 업데이트
         data.update({
             'poster_url': poster_url, 'title': title, 'host' : {'link': ticket_link, 'site_id' : 3},
             'start_date': start_date, 'end_date': end_date, 'show_time': show_time,
-            'location': location, 'price': price, 'running_time': running_time, 'rating': rating,
+            'location': location, 'region': region, 'price': price, 'running_time': running_time, 'rating': rating,
             'open_date': open_date, 'pre_open_date': pre_open_date, 'exclusive': exclusive, 'category': category,
             'performance_description': performance_description
         })
@@ -349,7 +357,7 @@ def crawl_open_page(driver, csoonID, valid_links):
                 cast_data, artist_data = extract_cast_data(driver)
 
                 # None인 값만 업데이트
-                for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']:
+                for key in ['title', 'location', 'running_time', 'start_date', 'end_date', 'rating', 'price']:
                     if data[key] is None and performance_update.get(key) is not None:
                         data[key] = performance_update[key]
 
@@ -371,7 +379,7 @@ def crawl_open_page(driver, csoonID, valid_links):
         print(f"공연 정보 추출 중 오류 발생: {e}\n")
 
     # 오픈예정 페이지와 상세 페이지 HTML을 crawling_list에 저장
-    crawling_list.append({"open_page": dl_list_view, "detail_page": detail_html})
+    crawling_list.append({"ID": f"{csoonID}", "HTML": dl_list_view+str(detail_html)})
 
     #print(f"crawling_list에 저장된 데이터: {crawling_list}")
 
@@ -379,5 +387,5 @@ def crawl_open_page(driver, csoonID, valid_links):
     if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']):
         print("추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 정보를 찾을 수 없습니다.\n")
 
-    return data, cast_data, artist_data, crawling_list
- 
+    #return data, cast_data, artist_data, crawling_list
+    return crawling_list

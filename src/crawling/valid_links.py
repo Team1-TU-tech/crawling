@@ -108,24 +108,30 @@ def collect_valid_links():
 
 def crawl_valid_links(valid_links):
     driver = initialize_driver()
+    raw_html = [] 
 
     try:
         for link in valid_links:
             csoonID = link['csoonID']
             print(f"\nopen_page 데이터 수집을 시작합니다: csoonID = {csoonID}")
-            crawl_open_page(driver, csoonID, valid_links) #open_page.py에서 import
-
+            #crawl_open_page(driver, csoonID, valid_links) #open_page.py에서 import
+            raw_html.extend(crawl_open_page(driver, csoonID, valid_links))
     finally:
         driver.quit()
         print("추가 데이터 수집 완료!")
+
+    return raw_html
 
 def main():
     valid_links = collect_valid_links()
 
     if valid_links:
-        crawl_valid_links(valid_links)
+        raw_html = crawl_valid_links(valid_links)
+        #print(f"main에서 반환된 raw_html: {raw_html}") 
+        return raw_html
     else:
         print("수집된 유효한 링크가 없습니다.")
+        return []
 
 if __name__ == "__main__":
     main()
