@@ -1,0 +1,15 @@
+[project]
+name = "crawling"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "sunwoo", email = "summerham22@gmail.com"},
+]
+dependencies = ["selenium>=4.26.1", "webdriver-manager>=4.0.2"]
+requires-python = "==3.11.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
