@@ -8,8 +8,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from links import get_link  # 링크를 가져오는 함수
 
 # 크롤링할 링크들 (예시로 일부 링크를 추가)
-# all_links = get_link()
-all_links = ['http://ticket.yes24.com/Perf/51671']
+#all_links = get_link()
+all_links = ['http://ticket.yes24.com/Perf/503']
 
 def scrape_data():
     # Chrome 드라이버 설정
@@ -34,24 +34,22 @@ def scrape_data():
             continue  
 
         try:
-            category = driver.find_element(By.CSS_SELECTOR, '.rn-location').text # 카테고리
-
-            # 단독판매 여부 (없으면 None)
-            try:
-                exclusive_sales = driver.find_element(By.CSS_SELECTOR, '.rn-label').text
-            except:
-                exclusive_sales = None  # 단독판매 정보가 없으면 None
+            category = driver.find_element(By.CSS_SELECTOR, '.rn-location a').text if driver.find_elements(By.CSS_SELECTOR, '.rn-location a') else None # 카테고리
+            exclusive_sales = driver.find_element(By.CSS_SELECTOR, '.rn-label').text if driver.find_element(By.CSS_SELECTOR, '.rn-label') else None #단독판매 여부
+            title = driver.find_element(By.CLASS_NAME, 'rn-big-title').text if driver.find_element(By.CLASS_NAME, 'rn-big-title') else None # 공연 제목
+            performance_time = driver.find_element(By.CSS_SELECTOR, '.rn-product-area3 dd').text if driver.find_element(By.CSS_SELECTOR, '.rn-product-area3 dd') else None # 공연 시간
             
-            title = driver.find_element(By.CLASS_NAME, 'rn-big-title').text # 공연 제목
-            performance_time = driver.find_element(By.CSS_SELECTOR, '.rn-product-area3 dd').text # 공연 시간
             performance_details = driver.find_elements(By.CSS_SELECTOR, '.rn08-tbl td')
-            running_time = performance_details[5].text # 공연시간
-            age_rating = performance_details[4].text # 관람등급
-            performance_place = performance_details[6].text # 공연장소
-            price = driver.find_element(By.CSS_SELECTOR, '#divPrice .rn-product-price1').text # 가격정보
-            poster_img = driver.find_element(By.CSS_SELECTOR, '.rn-product-imgbox img').get_attribute('src') # 포스터 이미지 URL
-            benefits = driver.find_element(By.CSS_SELECTOR, '.rn-product-dc').text # 혜택 및 할인 정보
-            performers = driver.find_elements(By.CSS_SELECTOR, '.rn-product-peole') # 출연진 정보 (여러 명일 수 있음)
+            running_time = performance_details[5].text if performance_details[5] else None # 공연시간
+            age_rating = performance_details[4].text if performance_details[4] else None # 관람등급
+            performance_place = performance_details[6].text if performance_details[6] else None # 공연장소
+            
+            # 가격정보 (없으면 None)
+            price_elements = driver.find_elements(By.CSS_SELECTOR, '#divPrice .rn-product-price1')
+            price = price_elements[0].text if price_elements else None
+            poster_img = driver.find_element(By.CSS_SELECTOR, '.rn-product-imgbox img').get_attribute('src') if driver.find_element(By.CSS_SELECTOR, '.rn-product-imgbox img') else None # 포스터 이미지 URL
+            benefits = driver.find_element(By.CSS_SELECTOR, '.rn-product-dc').text if driver.find_element(By.CSS_SELECTOR, '.rn-product-dc') else None # 혜택 및 할인 정보
+            performers = driver.find_elements(By.CSS_SELECTOR, '.rn-product-peole') 
 
             performer_names = []
             performer_links = []
@@ -63,18 +61,12 @@ def scrape_data():
 
             # 출연진이 없을 경우 빈 리스트 사용
             if not performer_names:
-                performer_names.append("출연진 정보 없음")
-                performer_links.append("")
+                performer_names.append(None)
+                performer_links.append(None)
 
             # 호스팅 서비스 사업자 정보
-            hosting_provider = driver.find_element(By.CSS_SELECTOR, '.footxt p').text
-
-            # 기획사 정보
-            try:
-                organizer_info = driver.find_element(By.CSS_SELECTOR, '#divPerfOrganization').text
-            except Exception as e:
-                organizer_info = "정보 없음"
-                print(f"기획사 정보 추출 오류: {e}")
+            hosting_provider = driver.find_element(By.CSS_SELECTOR, '.footxt p').text if driver.find_element(By.CSS_SELECTOR, '.footxt p').text else None
+            organizer_info = driver.find_element(By.CSS_SELECTOR, '#divPerfOrganization').text if driver.find_element(By.CSS_SELECTOR, '#divPerfOrganization').text else None
 
             # 데이터를 리스트에 추가
             data.append({
@@ -99,9 +91,9 @@ def scrape_data():
 
     # 크롬 드라이버 종료
     driver.quit()
+    print(data)
     return data
 
 # 실행
 if __name__ == "__main__":
     scraped_data = scrape_data()
-    print(scraped_data)  # 크롤링한 데이터를 콘솔에 출력
