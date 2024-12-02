@@ -22,5 +22,5 @@
 질문이나 제안사항이 있으면 언제든지 연락주세요:
 <br></br>
 - 이메일: TU-tech@tu-tech.com
-Github: `Mingk42`, `hahahellooo`, `hamsunwoo`, `oddsummer56`
+- Github: `Mingk42`, `hahahellooo`, `hamsunwoo`, `oddsummer56`
 
