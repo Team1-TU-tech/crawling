@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-from crawling.all import all_scrape_data  # 크롤링 함수가 포함된 모듈 임포트
+from crawling.all_crawler import all_scrap  # 크롤링 함수가 포함된 모듈 임포트
 
 # Mocking the get_link function
 def mock_get_link(driver):
@@ -36,7 +36,7 @@ def mock_driver():
     return driver
 
 # Test the all_scrape_data function
-def test_all_scrape_data(mock_driver):
+def test_all_scrap(mock_driver):
     # get_link 함수를 모의 처리
     all_links = mock_get_link(mock_driver)
     
@@ -52,11 +52,11 @@ def test_all_scrape_data(mock_driver):
     """
     
     # 실제 크롤링 함수 실행
-    all_scraped_data = all_scrape_data()  # 크롤링 함수 호출
+    all_scrap = all_scrap()  # 크롤링 함수 호출
 
     # 크롤링 데이터에 대한 예상값 설정
     expected_data = "Test Content\nAnother Test Content\n"
     
     # assert 문을 사용해 결과를 검증
-    assert all_scraped_data == expected_data, f"Expected '{expected_data}', but got '{all_scraped_data}'"
+    assert all_scrap == expected_data, f"Expected '{expected_data}', but got '{all_scrap}'"
 
