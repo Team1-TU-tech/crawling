@@ -5,16 +5,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-from links import get_link  # 링크를 가져오는 함수
-from utils import set_offset
+from crawling.links import get_link  # 링크를 가져오는 함수
+from crawling.utils import set_offset 
 
-def scrape_data():
+def scrap_data():
     # Chrome 드라이버 설정
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # 브라우저를 띄우지 않고 실행
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     
     all_links = get_link(driver)
+    #all_links = ['http://ticket.yes24.com/Perf/51651']
+    
     # 크롤링할 데이터 저장용 리스트
     data = []
 
@@ -35,7 +37,11 @@ def scrape_data():
             category = driver.find_element(By.CSS_SELECTOR, '.rn-location a').text if driver.find_elements(By.CSS_SELECTOR, '.rn-location a') else None # 카테고리
             exclusive_sales = driver.find_element(By.CSS_SELECTOR, '.rn-label').text if driver.find_element(By.CSS_SELECTOR, '.rn-label') else None #단독판매 여부
             title = driver.find_element(By.CLASS_NAME, 'rn-big-title').text if driver.find_element(By.CLASS_NAME, 'rn-big-title') else None # 공연 제목
-            performance_time = driver.find_element(By.CSS_SELECTOR, '.rn-product-area3 dd').text if driver.find_element(By.CSS_SELECTOR, '.rn-product-area3 dd') else None # 공연 시간
+            
+            #date와 time 구분
+            show_time = driver.find_element(By.CSS_SELECTOR, '.rn-product-area3 dd').text if driver.find_element(By.CSS_SELECTOR, '.rn-product-area3 dd') else None # 공연일자
+            date = driver.find_element(By.CSS_SELECTOR, '.ps-date').text  # 시작일자와 종료일자가 포함된 텍스트
+            start_date, end_date = date.split('~')  # '~'를 기준으로 시작일자와 종료일자 분리
             
             performance_details = driver.find_elements(By.CSS_SELECTOR, '.rn08-tbl td')
             running_time = performance_details[5].text if performance_details[5] else None # 공연시간
@@ -68,20 +74,23 @@ def scrape_data():
 
             # 데이터를 리스트에 추가
             data.append({
+                'title':title,
                 'category': category,
-                'title': title,
-                'age_rating': age_rating,
-                'exclusive_sales': exclusive_sales,
-                'performance_time': performance_time,
+                'location': performance_place,
                 'price': price,
-                'performance_place': performance_place,
+                'start_date': start_date,
+                'end_date': end_date,
+                'show_time': show_time,
                 'running_time': running_time,
-                'poster_img': poster_img,
-                'benefits': benefits,
-                'performer_names': performer_names,  # 출연진 이름 리스트
-                'performer_links': performer_links,  # 출연진 링크 리스트
-                'hosting_provider': hosting_provider,  # 호스팅 서비스 사업자 정보 추가
-                'organizer': organizer_info,  # 기획사 정보 추가
+                'casting': None,
+                'rating': age_rating,
+                'description': None,
+                'poster_url': poster_img,
+                'open_date': None,
+                'pre_open_date': None,
+                'hosts': {'host_name': hosting_provider, 'link': link, 'site_id': 2},
+                'artist': performer_names,
+                'artist_url': performer_links,
                 })
             print(data)
         except Exception as e:
@@ -95,4 +104,4 @@ def scrape_data():
 
 # 실행
 if __name__ == "__main__":
-    scraped_data = scrape_data()
+    scrap_data = scrap_data()

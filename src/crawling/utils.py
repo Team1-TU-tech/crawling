@@ -50,3 +50,4 @@ def set_offset(offset):
     
     print(f"offset 값을 {offset}으로 저장했습니다.")  # 저장 확인 메시지
 
+
