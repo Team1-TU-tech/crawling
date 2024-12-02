@@ -1,6 +1,6 @@
 [project]
 name = "crawling"
-version = "0.3.5"
+version = "0.3.6"
 description = "yes24 crawling save raw data"
 authors = [
     {name = "sunwoo", email = "summerham22@gmail.com"},
