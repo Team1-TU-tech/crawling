@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup  # HTML 포맷팅을 위한 라이브러리
 from webdriver_manager.chrome import ChromeDriverManager
-from interpark.open_page_url import get_open_page_url
+from crawling.open_page_url import get_open_page_url
 import time
 import os
 

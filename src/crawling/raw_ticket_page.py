@@ -8,7 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 
-from interpark.open_page_url import get_open_page_url
+from crawling.open_page_url import get_open_page_url
 
 
 def extract_ticket_html():
