@@ -383,7 +383,7 @@ def crawl_open_page(driver, csoonID, valid_links):
         print(f"공연 정보 추출 중 오류 발생: {e}\n")
 
     # 오픈예정 페이지와 상세 페이지 HTML을 crawling_list에 저장
-    crawling_list.append({"ID": f"{csoonID}", "HTML": dl_list_view+str(detail_html)})
+    crawling_list.append({"ID": f"{csoonID}", "HTML": str(dl_list_view)+str(detail_html)})
 
     #print(f"crawling_list에 저장된 데이터: {crawling_list}")
 
