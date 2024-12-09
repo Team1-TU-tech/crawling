@@ -300,7 +300,7 @@ def crawl_open_page(driver, csoonID, valid_links):
     # 데이터 초기화
     data = {
         'poster_url': None, 'title': None, 'host' : {'link': None, 'site_id' : None}, 'start_date': None, 'end_date': None,
-        'show_time': None, 'location': None, 'region': None, 'price': None, 'running_time': None, 'rating': None,
+        'show_time': None, 'location': None, 'region': None, 'price': [{'seat': None, 'price': None}], 'running_time': None, 'rating': None,
         'open_date': None, 'pre_open_date': None, 'exclusive': 0, 'category': None, 'performance_description': None
     }
 
@@ -338,11 +338,14 @@ def crawl_open_page(driver, csoonID, valid_links):
             region = get_location(location_part)
             ###############################################################################
 
+        # Price 전처리
+        seat = 
+        price = 
         # 데이터 업데이트
         data.update({
             'poster_url': poster_url, 'title': title, 'host' : {'site_id' : 3, 'link': ticket_link},
             'start_date': start_date, 'end_date': end_date, 'show_time': show_time,
-            'location': location, 'region': region, 'price': price, 'running_time': running_time, 'rating': rating,
+            'location': location, 'region': region, 'price': [{'seat': seat, 'price': price}], 'running_time': running_time, 'rating': rating,
             'open_date': open_date, 'pre_open_date': pre_open_date, 'exclusive': exclusive, 'category': category,
             'performance_description': performance_description
         })
