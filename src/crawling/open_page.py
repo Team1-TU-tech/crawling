@@ -331,12 +331,16 @@ def crawl_open_page(driver, csoonID, valid_links):
         region = get_location(location)  
         if region:
             print(f"지역: {region}")
+            ###############################################################################
         else:
-            print("지역을 찾을 수 없습니다.")
+            location_part=location.rsplit(' ',1)
+            result = ' '.join(location_part[0][:2])
+            region = get_location(location_part)
+            ###############################################################################
 
         # 데이터 업데이트
         data.update({
-            'poster_url': poster_url, 'title': title, 'host' : {'link': ticket_link, 'site_id' : 3},
+            'poster_url': poster_url, 'title': title, 'host' : {'site_id' : 3, 'link': ticket_link},
             'start_date': start_date, 'end_date': end_date, 'show_time': show_time,
             'location': location, 'region': region, 'price': price, 'running_time': running_time, 'rating': rating,
             'open_date': open_date, 'pre_open_date': pre_open_date, 'exclusive': exclusive, 'category': category,
