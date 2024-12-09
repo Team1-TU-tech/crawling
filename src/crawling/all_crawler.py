@@ -65,3 +65,6 @@ def all_scrap(all_links):
     
     return crawling_list
 
+# 실행
+if __name__ == "__main__":
+    all_scrap = all_scrap()
