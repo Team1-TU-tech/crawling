@@ -6,7 +6,7 @@
 <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=Python&logoColor=F5F7F8"/>   <img src="https://img.shields.io/badge/selenium-43B02A?style=flat&logo=selenium&logoColor=F5F7F8"/>
 <br></br>
 ## 개발기간
-`2024.11.15 ~ 2024.11.20 (총 5일)`
+`2024.11.15 ~ 2024.11.20 (총 6일)`
 <br></br>
 ## 기능설명
 - **Yes24 공연 티켓 크롤링**: Yes24 웹사이트에서 공연 티켓 정보를 자동으로 크롤링합니다.
