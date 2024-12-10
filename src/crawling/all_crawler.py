@@ -25,11 +25,11 @@ def all_scrap(all_links):
 
         # 페이지 열기
         driver.get(link)
-
+        time.sleep(5)
         # 페이지 로딩 대기 (WebDriverWait 사용)
         try:
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'renew-content')))
-        
+            time.sleep(5) 
         except Exception as e:
             print(f"페이지 로딩 실패: {e}")
             continue  
