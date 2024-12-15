@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.4.2"
-content_hash = "sha256:e0ed93145d10aa0286dcb7c8f56d199b0f49f7e2e588686f4533d60c9fa35eed"
+content_hash = "sha256:f5aefb7cdd1d43e657c992a2431c08f3473df51cf45c896e3012a978750700f1"
 
 [[package]]
 name = "attrs"
@@ -124,27 +124,6 @@ dependencies = [
 files = [
     {file = "chromedriver-autoinstaller-0.6.4.tar.gz", hash = "sha256:1b4df04b87e6107c730085b98e5fd541db3d1777c32b8bd08e2ca4b1244050af"},
     {file = "chromedriver_autoinstaller-0.6.4-py3-none-any.whl", hash = "sha256:b12ed187ca9fac4d744deb588d221222ed50836384607e5303e6eab98bb9dc64"},
-]
-
-[[package]]
-name = "crawling"
-version = "0.1.0"
-requires_python = ">=3.11"
-path = "./."
-summary = "Default template for PDM package"
-groups = ["default"]
-dependencies = [
-    "beautifulsoup4>=4.12.3",
-    "bs4>=0.0.2",
-    "chromedriver-autoinstaller>=0.6.4",
-    "crawling @ file:///${PROJECT_ROOT}/.",
-    "dateutils>=0.6.12",
-    "pandas>=2.2.3",
-    "pymysql>=1.1.1",
-    "requests>=2.32.3",
-    "selenium>=4.26.1",
-    "undetected-chromedriver>=3.5.5",
-    "webdriver-manager>=4.0.2",
 ]
 
 [[package]]

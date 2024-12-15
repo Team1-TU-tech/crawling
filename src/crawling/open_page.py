@@ -327,20 +327,52 @@ def crawl_open_page(driver, csoonID, valid_links):
         performance_description = extract_description(full_text)
 
 
-        # Kakao 지도에서 주소 크롤링
-        region = get_location(location)  
-        if region:
-            print(f"지역: {region}")
-            ###############################################################################
-        else:
-            location_part=location.rsplit(' ',1)
-            result = ' '.join(location_part[0][:2])
-            region = get_location(location_part)
-            ###############################################################################
-
+        region=crawl_with_retry(location)
+        
         # Price 전처리
-        seat = 
-        price = 
+
+        seat = None 
+
+        def extract_seat_prices(price):
+            # 정규 표현식: 좌석과 가격을 추출
+            pattern = r'([A-Za-z가-힣]+(?:석)?(?:\([^\)]+\))?)\s*[-]?\(?(\d{1,3}(?:,\d{3})*)\s*원\)?|(\d{1,3}(?:,\d{3})*)\s*원'
+            
+            result = []
+            #seat = None 
+            # '/'로 구분된 경우 처리
+            price_list = price.split(' / ')
+            
+            for price_item in price_list:
+                matches = re.findall(pattern, price_item.strip())
+                
+                if matches:
+                    for match in matches:
+                        
+                        if match[0] and match[1]:  # 좌석과 가격이 모두 있는 경우
+                            seat = match[0].strip()
+                            price = int(match[1].replace(",", ""))
+                            price = "{:,.0f}".format(price)
+                        elif match[2]:  # 가격만 있는 경우
+                            seat = '일반석'
+                            price = int(match[2].replace(",", ""))
+                            price = "{:,.0f}".format(price)
+                        
+                        price =  str(price)
+                        up_price = price.replace("원", "")
+                        up_price = up_price.strip() + "원"
+                        result.append({'seat': seat, 'price': up_price})
+
+
+                        ### price 특수문자 strip해서 없애고 3개기준으로 , 넣고 마지막에 원 추가하기 ###
+
+            # 가격 정보가 없다면, 'seat'와 'price' 모두 None인 항목 추가
+            if not result:
+                return [{'seat': price_list, 'price': None}]
+            
+            return result
+
+        price = extract_seat_prices(price)
+        
         # 데이터 업데이트
         data.update({
             'poster_url': poster_url, 'title': title, 'host' : {'site_id' : 3, 'link': ticket_link},

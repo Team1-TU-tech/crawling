@@ -10,13 +10,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 
-# Kakao 지도에서 주소 크롤링하는 함수
-def get_location(location):
+def get_location(location, max_retries=3):
     # 지역 맵
     region_map = {
         '서울': '서울',
         '경기': '수도권',
         '인천': '수도권',
+        '세종': '수도권',
         '부산': '경상',
         '대구': '경상',
         '울산': '경상',
@@ -30,62 +30,160 @@ def get_location(location):
         '충북': '충청',
         '대전': '충청',
         '강원': '강원',
+        '제주특별자치도': '제주',
+        '제주': '제주'
     }
 
     # ChromeOptions 객체 생성
     options = Options()
-    # Headless 모드 활성화
-    options.add_argument("--no-sandbox")  # 추가한 옵션
-    #options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    # options.add_argument("--headless")  # 필요 시 활성화
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")  # 추가한 옵션
+    options.add_argument("--disable-gpu")
     options.add_argument("--ignore-ssl-errors=yes")
     options.add_argument("--ignore-certificate-errors")
 
-    # WebDriver 객체 생성
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-
+    retries = 0  # 재시도 횟수 초기화
     link = f'https://map.kakao.com/?q={location}'
-    try:
-        driver.get(link)
 
-        # 페이지 로딩 기다리기 (예: 주소가 로딩될 때까지 기다림)
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "p[data-id='address']"))
-        )
+    while retries < max_retries:
+        try:
+            # WebDriver 객체 생성
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            driver.get(link)
 
-        # 페이지 소스 가져오기
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
+            # 페이지 로딩 기다리기
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "p[data-id='address']"))
+            )
 
-        # p 태그에서 data-id='address'를 찾고, 텍스트 추출
-        address_tag = soup.find('p', {'data-id': 'address'})
-        if address_tag:
-            address_text = address_tag.get_text().strip()  # 텍스트 추출
-            print("주소:", address_text)
+            # 현재 URL이 404인지 확인
+            if "404.ko.html" in driver.current_url:
+                print(f"404 페이지 탐지. 재시도 중... ({retries + 1}/{max_retries})")
+                retries += 1
+                driver.quit()  # 브라우저 종료
+                time.sleep(2)  # 대기 후 재시도
+                continue
 
-            # 지역 추출 및 매핑
-            region = None
-            for region_key in region_map:
-                if region_key in address_text:
-                    region = region_map[region_key]
-                    break
+            # 페이지 소스 가져오기
+            html = driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
 
-            if region:
-                print(f"해당 지역은 {region}입니다.")
-                return region
+            # p 태그에서 data-id='address'를 찾고, 텍스트 추출
+            address_tag = soup.find('p', {'data-id': 'address'})
+            if address_tag:
+                address_text = address_tag.get_text().strip()  # 텍스트 추출
+                print("주소:", address_text)
+
+                # 지역 추출 및 매핑
+                region = None
+                for region_key in region_map:
+                    if region_key in address_text:
+                        region = region_map[region_key]
+                        break
+
+                driver.quit()  # 브라우저 종료
+                if region:
+                    print(f"해당 지역은 {region}입니다.")
+                    return region
+                else:
+                    print("지역을 찾을 수 없습니다.")
+                    return None
             else:
-                print("지역을 찾을 수 없습니다.")
+                print("주소를 찾을 수 없습니다.")
+                driver.quit()  # 브라우저 종료
                 return None
-        else:
-            print("주소를 찾을 수 없습니다.")
+
+        except TimeoutException:
+            print(f"Timeout 발생. 재시도 중... ({retries + 1}/{max_retries})")
+            retries += 1
+            time.sleep(2)  # 대기 후 재시도
+
+        except Exception as e:
+            print(f"에러 발생: {e}")
             return None
 
-    except Exception as e:
-        print(f"접속 에러: {e}")
-        return None
-    finally:
-        driver.quit()  # 브라우저 종료
+        finally:
+            if 'driver' in locals():  # 드라이버가 생성되었는지 확인
+                driver.quit()
+
+    # 최대 재시도 초과 시
+    print("최대 재시도 횟수 초과. 작업을 종료합니다.")
+    return None
+
+   
+# def crawl_with_retry(location, max_retries=3):
+#     region = get_location(location)
+#     if region:
+#         print(f"지역: {region}")
+#         return region
+#     else:
+#         retries = 0
+#         while retries < max_retries:
+#             # 1단계: 입력된 location의 마지막 부분 제거
+#             location_parts = location.rsplit(' ', 1)
+#             if len(location_parts) > 1:
+#                 location = location_parts[0]  # 새로운 location으로 설정
+#             else:
+#                 print("더 이상 단순화할 수 없는 location입니다.")
+#                 break
+
+#             print(f"단순화된 location으로 재시도: {location}")
+#             region = get_location(location)
+
+#             if region:
+#                 print(f"재시도 성공: {region}")
+#                 return region
+
+#             # 2단계: location에서 첫 두 글자를 기준으로 새로운 location 구성
+#             if retries < max_retries - 1:  # 2단계 로직을 마지막 시도 전에만 실행
+#                 location_part = location.rsplit(' ', 1)
+#                 result = ''.join(location_part[0][:2])  # 첫 두 글자만 가져옴
+#                 print(f"추가 단순화된 location으로 재시도: {result}")
+#                 region = get_location(result)
+#                 if region:
+#                     print(f"재시도 성공: {region}")
+#                     return region
+
+#             retries += 1
+
+#         print("최대 재시도 횟수를 초과했습니다.")
+#         return None
+
+def crawl_with_retry(location, max_retries=2):
+    attempt = 0  # 전체 반복 횟수
+    while attempt < max_retries:
+        # region 시도
+        region = get_location(location)
+        if region:
+            print(f"지역: {region}")
+            return region
+
+        print(f"region 시도 실패: {attempt + 1}/{max_retries}")
+
+        # strip (location 단순화)
+        location_parts = location.rsplit(' ', 1)
+        if len(location_parts) > 1:
+            location = location_parts[0]  # 마지막 단어 제거
+            print(f"단순화된 location으로 재시도: {location}")
+        else:
+            print("더 이상 단순화할 수 없는 location입니다.")
+            break
+
+        # 단순화된 location으로 다시 region 시도
+        region = get_location(location)
+        if region:
+            print(f"단순화된 location으로 성공: {region}")
+            return region
+
+        print(f"단순화된 location도 실패: {attempt + 1}/{max_retries}")
+
+        # 프로세스 반복
+        attempt += 1
+
+    print("최대 프로세스 반복 횟수를 초과했습니다.")
+    return None
+
 
 # 상세예매링크에서 ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price'] 정보 추출
 def extract_performance_data(driver):
