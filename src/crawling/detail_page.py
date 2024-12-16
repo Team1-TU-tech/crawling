@@ -10,7 +10,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 
-def get_location(location, max_retries=3):
+def get_location(location, max_retries=2):
     # 지역 맵
     region_map = {
         '서울': '서울',
@@ -30,7 +30,6 @@ def get_location(location, max_retries=3):
         '충북': '충청',
         '대전': '충청',
         '강원': '강원',
-        '제주특별자치도': '제주',
         '제주': '제주'
     }
 
@@ -62,7 +61,7 @@ def get_location(location, max_retries=3):
                 print(f"404 페이지 탐지. 재시도 중... ({retries + 1}/{max_retries})")
                 retries += 1
                 driver.quit()  # 브라우저 종료
-                time.sleep(2)  # 대기 후 재시도
+                time.sleep(1)  # 대기 후 재시도
                 continue
 
             # 페이지 소스 가져오기
@@ -97,7 +96,7 @@ def get_location(location, max_retries=3):
         except TimeoutException:
             print(f"Timeout 발생. 재시도 중... ({retries + 1}/{max_retries})")
             retries += 1
-            time.sleep(2)  # 대기 후 재시도
+            time.sleep(1)  # 대기 후 재시도
 
         except Exception as e:
             print(f"에러 발생: {e}")
