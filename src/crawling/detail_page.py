@@ -112,44 +112,6 @@ def get_location(location, max_retries=3):
     return None
 
    
-# def crawl_with_retry(location, max_retries=3):
-#     region = get_location(location)
-#     if region:
-#         print(f"지역: {region}")
-#         return region
-#     else:
-#         retries = 0
-#         while retries < max_retries:
-#             # 1단계: 입력된 location의 마지막 부분 제거
-#             location_parts = location.rsplit(' ', 1)
-#             if len(location_parts) > 1:
-#                 location = location_parts[0]  # 새로운 location으로 설정
-#             else:
-#                 print("더 이상 단순화할 수 없는 location입니다.")
-#                 break
-
-#             print(f"단순화된 location으로 재시도: {location}")
-#             region = get_location(location)
-
-#             if region:
-#                 print(f"재시도 성공: {region}")
-#                 return region
-
-#             # 2단계: location에서 첫 두 글자를 기준으로 새로운 location 구성
-#             if retries < max_retries - 1:  # 2단계 로직을 마지막 시도 전에만 실행
-#                 location_part = location.rsplit(' ', 1)
-#                 result = ''.join(location_part[0][:2])  # 첫 두 글자만 가져옴
-#                 print(f"추가 단순화된 location으로 재시도: {result}")
-#                 region = get_location(result)
-#                 if region:
-#                     print(f"재시도 성공: {region}")
-#                     return region
-
-#             retries += 1
-
-#         print("최대 재시도 횟수를 초과했습니다.")
-#         return None
-
 def crawl_with_retry(location, max_retries=2):
     attempt = 0  # 전체 반복 횟수
     while attempt < max_retries:

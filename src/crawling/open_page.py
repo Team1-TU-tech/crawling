@@ -363,8 +363,7 @@ def crawl_open_page(driver, csoonID, valid_links):
                         result.append({'seat': seat, 'price': up_price})
 
 
-                        ### price 특수문자 strip해서 없애고 3개기준으로 , 넣고 마지막에 원 추가하기 ###
-
+                    
             # 가격 정보가 없다면, 'seat'와 'price' 모두 None인 항목 추가
             if not result:
                 return [{'seat': price_list, 'price': None}]
@@ -377,7 +376,7 @@ def crawl_open_page(driver, csoonID, valid_links):
         data.update({
             'poster_url': poster_url, 'title': title, 'host' : {'site_id' : 3, 'link': ticket_link},
             'start_date': start_date, 'end_date': end_date, 'show_time': show_time,
-            'location': location, 'region': region, 'price': [{'seat': seat, 'price': price}], 'running_time': running_time, 'rating': rating,
+            'location': location, 'region': region, 'price': price, 'running_time': running_time, 'rating': rating,
             'open_date': open_date, 'pre_open_date': pre_open_date, 'exclusive': exclusive, 'category': category,
             'performance_description': performance_description
         })
