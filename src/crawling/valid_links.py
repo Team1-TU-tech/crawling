@@ -87,6 +87,7 @@ def crawl_ID(driver, csoonID, valid_links):
         print(f"페이지 로드 시간 초과 (csoonID: {csoonID}): {e}")
     except Exception as e:
         print(f"예기치 못한 오류 발생 (csoonID: {csoonID}): {e}")
+
 def collect_valid_links():
 
     driver = initialize_driver()
@@ -99,17 +100,19 @@ def collect_valid_links():
             print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
             return []   
     
-        start_id = get_offset()
+        start_id = get_last_id_from_redis('ticketlink')
 
         # 크롤링 실행
         for csoonID in range(start_id, last_id + 1): 
             try:
                 crawl_ID(driver, csoonID, valid_links)
-                # 유효한 링크 크롤링 후 offset 저장
-                set_offset(csoonID + 1)
+                # 유효한 링크 크롤링 후 마지막 처리된 ID를 Redis에 저장
+                update_last_id_in_redis('ticketlink', csoonID + 1)
+
             except Exception as e:
                 print(f"오류 발생하여 csoonID: {csoonID}에서 중단되었습니다. 오류: {e}")
-                continue  # 현재 ID를 건너뛰고 다음 ID로 진행
+                update_last_id_in_redis('ticketlink', csoonID)  # 오류 발생 시 마지막 처리된 ID 저장
+                break
     finally:
         driver.quit()
         print(f"*****valid links 저장 완료!***** / 총 {len(valid_links)}개의 유효한 링크를 수집했습니다.")
