@@ -11,7 +11,7 @@ import time
 from open_page_url import get_open_page_url
 
 
-def extract_ticket_html():
+def extract_ticket_html(base_file_number):
     # ChromeOptions 객체 생성
     options = Options()
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.20 Safari/537.36");
@@ -27,7 +27,7 @@ def extract_ticket_html():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     # 크롤링 대상 URL
-    open_page_lists = get_open_page_url(52610,5)
+    open_page_lists = get_open_page_url(base_file_number,500)
     #open_page_lists = get_open_page_url(53208,2)
     
     num = ''
