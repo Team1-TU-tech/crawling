@@ -9,6 +9,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
+import re
 
 def get_location(location, max_retries=2):
     # 지역 맵
@@ -111,7 +112,7 @@ def get_location(location, max_retries=2):
     return None
 
    
-def crawl_with_retry(location, max_retries=2):
+def crawl_region(location, max_retries=2):
     attempt = 0  # 전체 반복 횟수
     while attempt < max_retries:
         # region 시도
@@ -218,6 +219,41 @@ def extract_performance_data(driver):
     return data
 
 
+def extract_seat_prices(price):
+    # 정규 표현식: 좌석과 가격을 추출
+    pattern = r'([A-Za-z가-힣]+(?:석)?(?:\([^\)]+\))?)\s*[-]?\(?(\d{1,3}(?:,\d{3})*)\s*원\)?|(\d{1,3}(?:,\d{3})*)\s*원'
+    
+    result = []
+    #seat = None 
+    # '/'로 구분된 경우 처리
+    price_list = price.split(' / ')
+    
+    for price_item in price_list:
+        matches = re.findall(pattern, price_item.strip())
+        
+        if matches:
+            for match in matches:
+                
+                if match[0] and match[1]:  # 좌석과 가격이 모두 있는 경우
+                    seat = match[0].strip()
+                    price = int(match[1].replace(",", ""))
+                    price = "{:,.0f}".format(price)
+                elif match[2]:  # 가격만 있는 경우
+                    seat = '일반석'
+                    price = int(match[2].replace(",", ""))
+                    price = "{:,.0f}".format(price)
+                
+                price =  str(price)
+                up_price = price.replace("원", "")
+                up_price = up_price.strip() + "원"
+                result.append({'seat': seat, 'price': up_price})
+          
+    # 가격 정보가 없다면, 'seat'와 'price' 모두 None인 항목 추가
+    if not result:
+        return [{'seat': price_list, 'price': None}]
+    
+    return result
+    
 # 캐스팅 (이름, 역할) / 아티스트 (이름, 아티스트 url)
 def extract_cast_data(driver):
     cast_data, artist_data = [], []
@@ -268,19 +304,3 @@ def extract_cast_data(driver):
         artist_data.append({'artist': None, 'artist_url': None})
 
     return cast_data, artist_data
-
-# 예매링크의 전체 HTML 추출
-def extract_detail_html(driver):
-
-    try:
-        # 현재 페이지 HTML 가져오기
-        html_content = driver.page_source
-        soup = BeautifulSoup(html_content, 'html.parser')
-        
-        # HTML 공백이 너무 많아서 처리
-        minified_html = soup.prettify(formatter="minimal").replace("\n", "").strip()
-        return minified_html
-    
-    except Exception as e:
-        print(f"HTML 처리 중 오류 발생: {e}")
-        return None

@@ -138,16 +138,16 @@ def crawl_valid_links(valid_links):
 
     return raw_html
 
-def main():
-    valid_links = collect_valid_links()
+# def main():
+#     valid_links = collect_valid_links()
 
-    if valid_links:
-        raw_html = crawl_valid_links(valid_links)
-        #print(f"main에서 반환된 raw_html: {raw_html}") 
-        return raw_html
-    else:
-        print("수집된 유효한 링크가 없습니다.")
-        return []
+#     if valid_links:
+#         raw_html = crawl_valid_links(valid_links)
+#         #print(f"main에서 반환된 raw_html: {raw_html}") 
+#         return raw_html
+#     else:
+#         print("수집된 유효한 링크가 없습니다.")
+#         return []
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
