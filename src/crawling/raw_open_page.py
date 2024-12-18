@@ -11,7 +11,7 @@ import time
 import os
 
 
-def extract_open_html():
+def extract_open_html(base_file_number):
     # ChromeOptions 객체 생성
     options = Options()
     options.add_argument("--no-sandbox")  # 추가한 옵션
@@ -27,7 +27,7 @@ def extract_open_html():
 
     # 크롤링 대상 URL
     #open_page_lists = get_open_page_url(49609,100)
-    open_page_lists = get_open_page_url(53208,2)
+    open_page_lists = get_open_page_url(baser_file_number,500)
     
     num = ''
     crawling_list=[]
