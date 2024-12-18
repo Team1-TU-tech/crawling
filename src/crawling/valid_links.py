@@ -2,10 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from urllib3.exceptions import ReadTimeoutError
-from bs4 import BeautifulSoup
 from open_page import *
 from offset import *
-from detail_page import extract_detail_html
 
 base_url = "https://www.ticketlink.co.kr/help/notice/"
 #crawling_list = []

@@ -148,9 +148,8 @@ def crawl_with_retry(location, max_retries=2):
 
 # 상세예매링크에서 ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price'] 정보 추출
 def extract_performance_data(driver):
-
     data = {
-        "title" : None,
+        "title": None,
         "location": None,
         "running_time": None,
         "start_date": None,
@@ -161,47 +160,63 @@ def extract_performance_data(driver):
 
     try:
         # title 추출
-        title_xpath = "//h1[@class='product_title']"  # 예시로, 실제 title 위치에 맞게 수정 필요
-        title_element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, title_xpath)))
-        data["title"] = title_element.text.strip()
+        try:
+            title_xpath = "//h1[@class='product_title']"  # 예시로, 실제 title 위치에 맞게 수정 필요
+            title_element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, title_xpath)))
+            data["title"] = title_element.text.strip()
+        except Exception as e:
+            print(f"title을 찾을 수 없습니다: {e}")
 
-        # location
-        location_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div"
-        location_element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, location_xpath)))
-        data["location"] = location_element.text.strip()
+        # location 추출
+        try:
+            location_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div"
+            location_element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, location_xpath)))
+            data["location"] = location_element.text.strip()
+        except Exception as e:
+            print(f"location을 찾을 수 없습니다: {e}")
 
-        # running time
-        running_time_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '관람시간')]/following-sibling::div"
-        running_time_element = driver.find_element(By.XPATH, running_time_xpath)
-        data["running_time"] = running_time_element.text.strip()
+        # running time 추출
+        try:
+            running_time_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '관람시간')]/following-sibling::div"
+            running_time_element = driver.find_element(By.XPATH, running_time_xpath)
+            data["running_time"] = running_time_element.text.strip()
+        except Exception as e:
+            print(f"running_time을 찾을 수 없습니다: {e}")
 
-        # period
-        period_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '기간')]/following-sibling::div"
-        period_element = driver.find_element(By.XPATH, period_xpath)
-        period = period_element.text.strip()
-        if " - " in period:
-            data["start_date"], data["end_date"] = [d.strip() for d in period.split(" - ")]
-        else:
-            data["start_date"] = data["end_date"] = period.strip()
+        # period 추출
+        try:
+            period_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '기간')]/following-sibling::div"
+            period_element = driver.find_element(By.XPATH, period_xpath)
+            period = period_element.text.strip()
+            if " - " in period:
+                data["start_date"], data["end_date"] = [d.strip() for d in period.split(" - ")]
+            else:
+                data["start_date"] = data["end_date"] = period.strip()
+        except Exception as e:
+            print(f"기간 정보를 찾을 수 없습니다: {e}")
 
-        # rating
-        rating_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '관람등급')]/following-sibling::div"
-        rating_element = driver.find_element(By.XPATH, rating_xpath)
-        data["rating"] = rating_element.text.strip()
+        # rating 추출
+        try:
+            rating_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '관람등급')]/following-sibling::div"
+            rating_element = driver.find_element(By.XPATH, rating_xpath)
+            data["rating"] = rating_element.text.strip()
+        except Exception as e:
+            print(f"rating 정보를 찾을 수 없습니다: {e}")
 
-        # price
-        price_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '가격')]/following-sibling::div/ul[@class='product_info_sublist']/li[@class='product_info_subitem']"
-        price_elements = driver.find_elements(By.XPATH, price_xpath)
-        prices = [elem.text.strip() for elem in price_elements]
-        data["price"] = ", ".join(prices)
+        # price 추출
+        try:
+            price_xpath = "//ul[@class='product_info_list type_col2']//span[contains(text(), '가격')]/following-sibling::div/ul[@class='product_info_sublist']/li[@class='product_info_subitem']"
+            price_elements = driver.find_elements(By.XPATH, price_xpath)
+            prices = [elem.text.strip() for elem in price_elements]
+            data["price"] = ", ".join(prices)
+        except Exception as e:
+            print(f"price 정보를 찾을 수 없습니다: {e}")
 
-    except NoSuchElementException as e:
-        print(f"데이터를 찾을 수 없습니다: {e}")
-    except TimeoutException as e:
-        print(f"시간 초과로 데이터를 가져오지 못했습니다: {e}")
     except Exception as e:
         print(f"기타 오류 발생: {e}")
+
     return data
+
 
 # 캐스팅 (이름, 역할) / 아티스트 (이름, 아티스트 url)
 def extract_cast_data(driver):

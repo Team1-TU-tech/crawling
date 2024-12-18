@@ -129,70 +129,151 @@ def extract_description(full_text):
 
 # 본문 - 공연 정보 추출 (공연 시간, 장소, 가격, 관람 시간)
 def extract_performance_info(page_text):
-
-    match_date = re.search(r"공연\s*(일시|기간)\s*[:：]?\s*([^\n]+)", page_text)
+    # 기본값 초기화
     start_date, end_date = None, None
+    show_time = None
+    location = None
+    price = None
+    running_time = None
+    rating = None
+    full_date = None
 
-    if match_date:
-        full_date = match_date.group(2).strip()
-        if " ~ " in full_date:
-            start_date, end_date = full_date.split(" ~ ")
-        elif " - " in full_date:
-            start_date, end_date = full_date.split(" - ")
-        else:
-            start_date = end_date = full_date.strip()
+    try:
+        # 공연 일시 또는 기간 추출
+        match_date = re.search(r"공연\s*(일시|기간)\s*[:：]?\s*([^\n]+)", page_text)
+        if match_date:
+            full_date = match_date.group(2).strip()
+            if " ~ " in full_date:
+                start_date, end_date = full_date.split(" ~ ")
+            elif " - " in full_date:
+                start_date, end_date = full_date.split(" - ")
+            else:
+                start_date = end_date = full_date.strip()
 
-        start_date = normalize_date(start_date.strip()) if start_date else None
-        end_date = normalize_date(end_date.strip()) if end_date else None
-  
-    match_show_time = re.search(r"공연\s*시간\s*[:：]?\s*([^\n]+)", page_text)
-    show_time = match_show_time.group(1).strip() if match_show_time else full_date.strip()
+            start_date = normalize_date(start_date.strip()) if start_date else None
+            end_date = normalize_date(end_date.strip()) if end_date else None
 
-    match_location = re.search(r"공연\s*장소\s*[:：\-]?\s*([^\n]+)", page_text)
-    location = match_location.group(1).strip() if match_location else None
+    except Exception as e:
+        print(f"공연 일시 추출 중 오류: {e}")
 
-    match_price = re.search(r"티켓\s*가격\s*[:：\-]?\s*([^\n]+)", page_text)
-    price = match_price.group(1).strip() if match_price else None
-    
-    match_running_time = re.search(r"관람\s*시간\s*[:：\-]?\s*([^\n]+)", page_text)
-    running_time = match_running_time.group(1).strip() if match_running_time else None
+    try:
+        # 공연 시간 추출
+        match_show_time = re.search(r"공연\s*시간\s*[:：]?\s*([^\n]+)", page_text)
+        show_time = match_show_time.group(1).strip() if match_show_time else None
 
-    match_rating = re.search(r"관람\s*등급\s*[:：\-]?\s*([^\n]+)", page_text)
-    rating = match_rating.group(1).strip() if match_rating else None
+    except Exception as e:
+        print(f"공연 시간 추출 중 오류: {e}")
 
+    try:
+        # 공연 장소 추출
+        match_location = re.search(r"공연\s*장소\s*[:：\-]?\s*([^\n]+)", page_text)
+        location = match_location.group(1).strip() if match_location else None
+
+    except Exception as e:
+        print(f"공연 장소 추출 중 오류: {e}")
+
+    try:
+        # 티켓 가격 추출
+        match_price = re.search(r"티켓\s*가격\s*[:：\-]?\s*([^\n]+)", page_text)
+        price = match_price.group(1).strip() if match_price else None
+
+    except Exception as e:
+        print(f"티켓 가격 추출 중 오류: {e}")
+
+    try:
+        # 관람 시간 추출
+        match_running_time = re.search(r"관람\s*시간\s*[:：\-]?\s*([^\n]+)", page_text)
+        running_time = match_running_time.group(1).strip() if match_running_time else None
+
+    except Exception as e:
+        print(f"관람 시간 추출 중 오류: {e}")
+
+    try:
+        # 관람 등급 추출
+        match_rating = re.search(r"관람\s*등급\s*[:：\-]?\s*([^\n]+)", page_text)
+        rating = match_rating.group(1).strip() if match_rating else None
+
+    except Exception as e:
+        print(f"관람 등급 추출 중 오류: {e}")
+
+    # 추출된 정보 반환
     return start_date, end_date, show_time, location, price, running_time, rating
 
 # 헤더 - 공연 정보 추출 (포스터 URL, 제목, 예매처 링크, 카테고리)
 def extract_header(wait):
-    
-    # 포스터 URL, 제목 
+    poster_url = None
+    title = None
+    category = None
+    ticket_link = None
+    exclusive = 0
+
     try:
-        poster_element = wait.until(
-            EC.presence_of_element_located((By.CLASS_NAME, "thumb"))
-        ).find_element(By.TAG_NAME, "img")
-        poster_url = poster_element.get_attribute("src")
+        # 포스터 URL 추출
+        try:
+            poster_element = wait.until(
+                EC.presence_of_element_located((By.CLASS_NAME, "thumb"))
+            ).find_element(By.TAG_NAME, "img")
+            poster_url = poster_element.get_attribute("src")
+        except NoSuchElementException:
+            print("포스터 URL을 찾을 수 없습니다. 포스터는 None으로 설정됩니다.")
 
-        title_element = wait.until(
-            EC.presence_of_element_located((By.ID, "noticeTitle"))
-        )
-        full_title = title_element.get_attribute("textContent").strip()
+        # 제목 추출
+        try:
+            title_element = None  # 초기화
+            full_title = None     # 초기화
 
-        # 단독판매여부 체크
-        exclusive = 1 if "단독판매" in full_title else 0
+            try:
+                # 우선 ID로 제목 찾기
+                title_element = wait.until(
+                    EC.presence_of_element_located((By.ID, "noticeTitle"))
+                )
+                print("Title found using ID 'noticeTitle'")
+            except TimeoutException:
+                
+                # 없을 경우 XPath로 list_view 내부의 마지막 class='title' 찾기
+                title_elements = wait.until(
+                    EC.presence_of_all_elements_located((By.XPATH, "//dl[@class='list_view']//dd[@class='title']"))
+                )
+                if title_elements:
+                    title_element = title_elements[-1]  # 마지막 요소 선택
+                    print("Title found using XPath 'list_view' and class='title'")
+                else:
+                    print("No title elements found.")
+                    raise Exception("No title elements found in list_view.")
 
-        full_title = full_title.replace("\u200b", "").strip()
-        
-        # 필요없는 정보빼고 타이틀 추출 
-        if "단독판매" in full_title:
-            full_title = full_title.replace("[단독판매]", "").strip()
+            # 제목 텍스트 추출
+            full_title = title_element.get_attribute("textContent").strip() if title_element else None
 
-        if "티켓오픈 안내" in full_title:
-            title = full_title.split("티켓오픈 안내")[0].strip()
-        elif "\u200b" in full_title:
-            title = full_title.split("\u200b")[0].strip()
-        else:
-            title = full_title.strip()
+            # 단독판매 여부 체크
+            exclusive = 1 if full_title and "단독판매" in full_title else 0
 
+            # 불필요한 문자 제거
+            full_title = full_title.replace("\u200b", "").strip() if full_title else ""
+            if "단독판매" in full_title:
+                full_title = full_title.replace("[단독판매]", "").strip()
+
+            # 제목 전처리
+            if "티켓오픈 안내" in full_title:
+                title = full_title.split("티켓오픈 안내")[0].strip()
+            elif "\u200b" in full_title:
+                title = full_title.split("\u200b")[0].strip()
+            else:
+                title = full_title.strip()
+
+            print(f"Extracted Title: {title}, Exclusive: {exclusive}")
+
+        except Exception as e:
+            print(f"타이틀을 찾을 수 없습니다: {e}")
+
+        # 타이틀과 exclusive 둘 다 없으면 건너뛰기 (단, poster_url이 있으면 반환)
+        if not title and not exclusive:
+            if poster_url:
+                print("타이틀과 exclusive는 없지만 포스터 URL이 있어 데이터를 반환합니다.")
+                return poster_url, None, None, None, 0
+            else:
+                print("타이틀, exclusive, 포스터 URL 모두 없습니다. 해당 항목을 건너뜁니다.")
+                return None, None, None, None, 0
+            
         # 제목 키워드 기준으로 카테고리 분류
         if "뮤지컬" in title or "연극" in title:
             category = "뮤지컬/연극"
@@ -201,21 +282,22 @@ def extract_header(wait):
         else:
             category = "전시/행사"
 
+        # 예매 링크 추출
         try:
             last_dd = wait.until(
                 EC.presence_of_element_located((By.CLASS_NAME, "th_info"))
             ).find_elements(By.TAG_NAME, "dd")[-1]
             link_element = last_dd.find_element(By.TAG_NAME, "a")
             ticket_link = link_element.get_attribute("href")
-        
         except NoSuchElementException:
-            ticket_link = None
+            print("예매 링크를 찾을 수 없습니다. 예매 링크는 None으로 설정됩니다.")
 
-        return poster_url, title, category, ticket_link, exclusive
-    
     except Exception as e:
         print(f"포스터, 공연 제목, 예매처 링크 로드 실패: {e}")
-        return None, None, None, None, 0
+
+    # 추출한 결과 반환
+    return poster_url, title, category, ticket_link, exclusive
+
 
 
 def extract_open_date(driver, page_text):
