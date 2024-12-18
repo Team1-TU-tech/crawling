@@ -44,6 +44,12 @@ def get_location(location, max_retries=1):
     options.add_argument("--ignore-certificate-errors")
 
     retries = 0  # 재시도 횟수 초기화
+    
+    # location 값 확인
+    if not location:  # location이 None 또는 빈 문자열이면
+        print("location 값이 없습니다. 작업을 중단합니다.")
+        return None
+    
     link = f'https://map.kakao.com/?q={location}'
 
     while retries < max_retries:
@@ -115,6 +121,10 @@ def get_location(location, max_retries=1):
 def crawl_region(location, max_retries=1):
     attempt = 0  # 전체 반복 횟수
     while attempt < max_retries:
+        if not location:  # location이 None인지 확인
+            print("location 값이 None입니다. 작업을 중단합니다.")
+            return None
+
         # region 시도
         region = get_location(location)
         if region:
@@ -123,15 +133,21 @@ def crawl_region(location, max_retries=1):
 
         print(f"region 시도 실패: {attempt + 1}/{max_retries}")
 
-        # strip (location 단순화)
-        location_parts = location.rsplit(' ', 1)
-        if len(location_parts) > 1:
-            location = location_parts[0]  # 마지막 단어 제거
-            print(f"단순화된 location으로 재시도: {location}")
-        else:
-            print("더 이상 단순화할 수 없는 location입니다.")
-            break
+        # location 값이 문자열인지 확인
+        if isinstance(location, str):
+            # strip (location 단순화)
+            location_parts = location.rsplit(' ', 1)
 
+            if len(location_parts) > 1:
+                location = location_parts[0]  # 마지막 단어 제거
+                print(f"단순화된 location으로 재시도: {location}")
+            else:
+                print("더 이상 단순화할 수 없는 location입니다.")
+                break
+        else:
+            print("location 값이 문자열이 아닙니다.")
+            break
+        
         # 단순화된 location으로 다시 region 시도
         region = get_location(location)
         if region:
@@ -226,7 +242,15 @@ def extract_seat_prices(price):
     result = []
     #seat = None 
     # '/'로 구분된 경우 처리
-    price_list = price.split(' / ')
+
+    # price가 None이면 빈 문자열로 처리
+    if price is None:
+        print("price 값이 None입니다. 빈 문자열로 대체합니다.")
+        price = None
+        price_list = []
+    # '/'로 구분된 경우 처리
+    else:
+        price_list = price.split(' / ')
     
     for price_item in price_list:
         matches = re.findall(pattern, price_item.strip())
@@ -248,10 +272,6 @@ def extract_seat_prices(price):
                 up_price = up_price.strip() + "원"
                 result.append({'seat': seat, 'price': up_price})
           
-    # 가격 정보가 없다면, 'seat'에 price_list 그대로 추가
-    if not result:
-        return [{'seat': price_list, 'price': None}]
-    
     return result
     
 # 캐스팅 (이름, 역할) / 아티스트 (이름, 아티스트 url)

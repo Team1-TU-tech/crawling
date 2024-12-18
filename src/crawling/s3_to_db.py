@@ -2,7 +2,7 @@ from detail_page import *
 from open_page import *
 from valid_links import *
 
-def crawl_data(driver, csoonID, valid_links):
+def crawl_data(driver, csoonID):
 
     csoon_url = f"https://www.ticketlink.co.kr/help/notice/{csoonID}"
     driver.get(csoon_url)
@@ -122,7 +122,7 @@ def crawl_valid_links(valid_links):
                 print(f"\nopen_page 데이터 수집을 시작합니다: csoonID = {csoonID}")
                 
                 # crawl_data 함수 호출 및 data 출력
-                data = crawl_data(driver, csoonID, valid_links)
+                data = crawl_data(driver, csoonID)
                 
                 # data 딕셔너리 출력
                 print("\n***** crawl_data에서 수집한 데이터 *****")

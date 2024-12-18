@@ -120,7 +120,7 @@ def extract_description(full_text):
                 description.append(line)
 
         # 설명이 있으면 반환, 없으면 기본값 반환
-        return "\n".join(description).strip() if description else "공연설명 없음"
+        return "\n".join(description).strip() if description else None
 
     except Exception as e:
         print(f"공연설명 추출 중 오류 발생: {e}")

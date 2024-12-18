@@ -93,19 +93,23 @@ def collect_valid_links():
 
     try:
         # 마지막 ID 가져오기
-        last_id = extract_last_id(driver, base_url)
-        if last_id is None:
-            print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
-            return []   
+        # last_id = extract_last_id(driver, base_url)
+        # if last_id is None:
+        #     print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
+        #     return []   
     
-        start_id = get_offset()
+        # start_id = get_offset()
+        start_id = 60858
+        last_id = 60860
+        # start_id = 45255
+        # last_id = 45257
 
         # 크롤링 실행
         for csoonID in range(start_id, last_id + 1): 
             try:
                 crawl_ID(driver, csoonID, valid_links)
                 # 유효한 링크 크롤링 후 offset 저장
-                set_offset(csoonID + 1)
+                #set_offset(csoonID + 1)
             except Exception as e:
                 print(f"오류 발생하여 csoonID: {csoonID}에서 중단되었습니다. 오류: {e}")
                 continue  # 현재 ID를 건너뛰고 다음 ID로 진행
