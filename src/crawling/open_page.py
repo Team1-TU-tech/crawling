@@ -255,6 +255,8 @@ def extract_header(wait):
             # 제목 전처리
             if "티켓오픈 안내" in full_title:
                 title = full_title.split("티켓오픈 안내")[0].strip()
+            elif "예매오픈" in full_title:
+                title = full_title.split("예매오픈")[0].strip()
             elif "\u200b" in full_title:
                 title = full_title.split("\u200b")[0].strip()
             else:

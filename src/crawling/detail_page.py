@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 import time
 import re
 
-def get_location(location, max_retries=2):
+def get_location(location, max_retries=1):
     # 지역 맵
     region_map = {
         '서울': '서울',
@@ -112,7 +112,7 @@ def get_location(location, max_retries=2):
     return None
 
    
-def crawl_region(location, max_retries=2):
+def crawl_region(location, max_retries=1):
     attempt = 0  # 전체 반복 횟수
     while attempt < max_retries:
         # region 시도
@@ -248,7 +248,7 @@ def extract_seat_prices(price):
                 up_price = up_price.strip() + "원"
                 result.append({'seat': seat, 'price': up_price})
           
-    # 가격 정보가 없다면, 'seat'와 'price' 모두 None인 항목 추가
+    # 가격 정보가 없다면, 'seat'에 price_list 그대로 추가
     if not result:
         return [{'seat': price_list, 'price': None}]
     
@@ -265,26 +265,26 @@ def extract_cast_data(driver):
         cast_list = main_content.find_elements(By.CLASS_NAME, 'product_casting_item')
         if not cast_list:
             # 캐스트 정보가 없으면 None 값으로 기본 추가
-            cast_data.append({'name': None, 'role': None})
-            artist_data.append({'artist': None, 'artist_url': None})
+            cast_data = [] 
+            artist_data = [] 
 
         for cast in cast_list:
             try:
                 # 캐스트 이미지 URL과 이름, 역할 추출
                 img_url = cast.find_element(By.CLASS_NAME, 'product_casting_imgbox').find_element(By.TAG_NAME, 'img').get_attribute('src')
-                name = cast.find_element(By.CLASS_NAME, 'product_casting_name').text.strip() if cast.find_element(By.CLASS_NAME, 'product_casting_name').text.strip() else None
+                actor = cast.find_element(By.CLASS_NAME, 'product_casting_name').text.strip() if cast.find_element(By.CLASS_NAME, 'product_casting_name').text.strip() else None
                 role = cast.find_element(By.CLASS_NAME, 'product_casting_role').text.strip() if cast.find_element(By.CLASS_NAME, 'product_casting_role').text.strip() else None
 
                 # 캐스트 정보와 아티스트 정보를 중복 없이 저장
-                if name or role:  # name이나 role이 None이 아닐 때만 추가
-                    if {'name': name, 'role': role} not in cast_data:
-                        cast_data.append({'name': name, 'role': role})
-                    if {'artist': name, 'artist_url': img_url} not in artist_data:
-                        artist_data.append({'artist': name, 'artist_url': img_url})
+                if actor or role:  # name이나 role이 None이 아닐 때만 추가
+                    if {'role': role, 'actor': actor} not in cast_data:
+                        cast_data.append({'role': role, 'actor': actor})
+                    if {'artist_name': actor, 'artist_url': img_url} not in artist_data:
+                        artist_data.append({'artist_name': actor, 'artist_url': img_url})
             except NoSuchElementException:
                 # 예외 발생 시 None 값으로 추가
-                cast_data.append({'name': None, 'role': None})
-                artist_data.append({'artist': None, 'artist_url': None})
+                cast_data = [] 
+                artist_data = [] 
 
         # 캐스팅 정보가 많아서 다음 버튼이 있으면 누르기
         while True:
@@ -299,8 +299,9 @@ def extract_cast_data(driver):
                 break
     except NoSuchElementException:
         print("출연진 정보를 찾을 수 없습니다.")
+        
         # 출연진 정보가 아예 없을 경우 None 값을 추가
-        cast_data.append({'name': None, 'role': None})
-        artist_data.append({'artist': None, 'artist_url': None})
-
+        cast_data = [] 
+        artist_data = []  
+        
     return cast_data, artist_data

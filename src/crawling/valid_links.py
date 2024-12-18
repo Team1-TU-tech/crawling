@@ -2,11 +2,12 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from urllib3.exceptions import ReadTimeoutError
+from bs4 import BeautifulSoup
 from open_page import *
 from offset import *
 
 base_url = "https://www.ticketlink.co.kr/help/notice/"
-#crawling_list = []
+
 
 # Selenium WebDriver 초기화
 def initialize_driver():
@@ -114,40 +115,3 @@ def collect_valid_links():
         print(valid_links)
     return valid_links
 
-
-def crawl_valid_links(valid_links):
-    driver = initialize_driver()
-    raw_html = []  # 수집한 HTML 데이터를 저장할 리스트
-
-    try:
-        for link in valid_links:
-            csoonID = link['csoonID']
-            try:
-                print(f"\nopen_page 데이터 수집을 시작합니다: csoonID = {csoonID}")
-                # crawl_open_page(driver, csoonID, valid_links) #open_page.py에서 import
-                raw_html.extend(crawl_open_page(driver, csoonID, valid_links))
-            except Exception as e:
-                print(f"오류 발생: csoonID = {csoonID}, 오류: {e}")
-                # 오류 발생 시 로그를 추가하거나 적절히 처리
-                continue
-    except Exception as e:
-        print(f"전체 프로세스 중단 오류: {e}")
-    finally:
-        driver.quit()
-        print("추가 데이터 수집 완료!")
-
-    return raw_html
-
-# def main():
-#     valid_links = collect_valid_links()
-
-#     if valid_links:
-#         raw_html = crawl_valid_links(valid_links)
-#         #print(f"main에서 반환된 raw_html: {raw_html}") 
-#         return raw_html
-#     else:
-#         print("수집된 유효한 링크가 없습니다.")
-#         return []
-
-# if __name__ == "__main__":
-#     main()
