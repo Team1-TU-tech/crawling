@@ -12,7 +12,7 @@ def get_config(path=None):
 
     if not os.path.exists(config_file_path):
         print(f"offset.ini 파일이 {config_file_path}에 존재하지 않으므로 기본값으로 생성합니다.")
-        config['DEFAULT'] = {'offset': '45228'}
+        config['DEFAULT'] = {'offset': '60371'}
         os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
         with open(config_file_path, 'w') as configfile:
             config.write(configfile)
@@ -26,7 +26,7 @@ def get_offset():
         return int(config["DEFAULT"]["offset"])
     except KeyError as e:
         print(f"KeyError: {e} 발생! 설정 파일에서 'offset' 키를 찾을 수 없습니다.")
-        print("기본값 45228을 사용합니다.")
+        print("기본값 58399을 사용합니다.")
         return 1
 
 def set_offset(offset):

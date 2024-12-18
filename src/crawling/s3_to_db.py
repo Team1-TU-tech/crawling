@@ -1,6 +1,20 @@
 from detail_page import *
 from open_page import *
 from valid_links import *
+import certifi
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
+import os, re
+from dotenv import load_dotenv
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+
+MONGO_PASSWORD = os.getenv("MONGOPASS")
+MONGO_URL = f"mongodb+srv://hahahello777:{MONGO_PASSWORD}@cluster0.5vlv3.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(MONGO_URL, tlsCAFile=certifi.where())
+db = client.tut
 
 def crawl_data(driver, csoonID):
 
@@ -88,6 +102,47 @@ def crawl_data(driver, csoonID):
                 # print(f"cast_data\n{cast_data}\n")
                 # print(f"artist_data\n{artist_data}\n")
 
+                #####################################################################################################
+
+                # 중복된 데이터가 존재하는지 체크
+                existing_data = db.tut.find_one({"duplicatekey": duplicate_key})
+
+                if existing_data is None:
+                    # 중복된 데이터가 없으면 새로운 데이터 삽입
+                    try:
+                        #db.Shows.create_index([('title', 1),('start_date', 1)],unique=True)
+                        print(f"🐢🐢🐢🐢🐢Inserting new data: {duplicate_key}🐢🐢🐢🐢🐢")
+                        db.tut.insert_one({
+                            "title": title,
+                            "duplicatekey": duplicate_key,
+                            "category": category,
+                            "location": location,
+                            "region": region,
+                            "price": price,
+                            "start_date": start_date,
+                            "end_date": end_date,
+                            "running_time": running_time,
+                            "casting": cast_data,
+                            "rating": rating,
+                            "description": performance_description,
+                            "poster_url": poster_url,
+                            "open_date": open_date,
+                            "pre_open_date": pre_open_date,
+                            "artist": artist_data,
+                            "hosts": [{"site_id": 3, "ticket_url": ticket_link}]
+                        })
+                        
+                    except DuplicateKeyError:
+                        print(f"Duplicate key error: {duplicate_key}")
+                else:
+                        # 이미 데이터가 존재하면 hosts 필드만 업데이트
+                        print(f"Data already exists for {duplicate_key}. Updating hosts.")
+                        previous_data = db.tut.find_one({"duplicatekey":duplicate_key})
+                        previous_data = previous_data["hosts"]
+
+                        if len(previous_data) < 3:
+                            previous_data.append({"site_id":3, "ticket_url":ticket_link})
+                            db.tut.update_one({"duplicatekey":duplicate_key},{"$set":{"hosts":previous_data}})
             except Exception as e:
                 print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
                 ticket_link = None
