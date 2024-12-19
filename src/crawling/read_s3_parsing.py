@@ -119,7 +119,7 @@ def convert_to_datetime_format(date_str):
     return None
 
 def html_parsing(base_file_number):
-    aws_conn_id = 'interpark'  # Airflow 연결 ID
+    aws_conn_id = 'data'  # Airflow 연결 ID
     bucket_name = 't1-tu-data'
 
     hook = S3Hook(aws_conn_id=aws_conn_id)
