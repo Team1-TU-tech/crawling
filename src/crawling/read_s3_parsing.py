@@ -394,4 +394,4 @@ def extract_data(soup):
     return ticket_data
 
 # 함수 실행
-#html_parsing()
+#html_parsing(52879)
