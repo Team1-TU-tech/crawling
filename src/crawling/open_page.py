@@ -8,11 +8,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from detail_page import *
 
 
-options = webdriver.ChromeOptions()
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-webdriver.Chrome(options=options)
-
 # 날짜 xxxx.xx.xx 형식 정규화
 def normalize_date(raw_date, base_year=None):
     if base_year is None:

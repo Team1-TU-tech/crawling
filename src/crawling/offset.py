@@ -12,7 +12,7 @@ def get_config(path=None):
 
     if not os.path.exists(config_file_path):
         print(f"offset.ini 파일이 {config_file_path}에 존재하지 않으므로 기본값으로 생성합니다.")
-        config['DEFAULT'] = {'offset': '60371'}
+        config['DEFAULT'] = {'offset': '59908'}
         os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
         with open(config_file_path, 'w') as configfile:
             config.write(configfile)

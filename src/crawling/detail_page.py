@@ -37,7 +37,7 @@ def get_location(location, max_retries=1):
     # ChromeOptions 객체 생성
     options = Options()
     options.add_argument("--no-sandbox")
-    # options.add_argument("--headless")  # 필요 시 활성화
+    options.add_argument("--headless")  # 필요 시 활성화
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--ignore-ssl-errors=yes")
@@ -79,7 +79,7 @@ def get_location(location, max_retries=1):
             address_tag = soup.find('p', {'data-id': 'address'})
             if address_tag:
                 address_text = address_tag.get_text().strip()  # 텍스트 추출
-                print("주소:", address_text)
+                #print("주소:", address_text)
 
                 # 지역 추출 및 매핑
                 region = None
@@ -90,13 +90,13 @@ def get_location(location, max_retries=1):
 
                 driver.quit()  # 브라우저 종료
                 if region:
-                    print(f"해당 지역은 {region}입니다.")
+                    #print(f"해당 지역은 {region}입니다.")
                     return region
                 else:
-                    print("지역을 찾을 수 없습니다.")
+                    #print("지역을 찾을 수 없습니다.")
                     return None
             else:
-                print("주소를 찾을 수 없습니다.")
+                #print("주소를 찾을 수 없습니다.")
                 driver.quit()  # 브라우저 종료
                 return None
 

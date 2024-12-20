@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from urllib3.exceptions import ReadTimeoutError
-from bs4 import BeautifulSoup
 from open_page import *
 from offset import *
 
@@ -12,6 +11,7 @@ base_url = "https://www.ticketlink.co.kr/help/notice/"
 # Selenium WebDriver 초기화
 def initialize_driver():
     options = webdriver.ChromeOptions()
+    options.add_argument("--headless") 
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     return webdriver.Chrome(options=options)
@@ -86,6 +86,7 @@ def crawl_ID(driver, csoonID, valid_links):
         print(f"페이지 로드 시간 초과 (csoonID: {csoonID}): {e}")
     except Exception as e:
         print(f"예기치 못한 오류 발생 (csoonID: {csoonID}): {e}")
+
 def collect_valid_links():
 
     driver = initialize_driver()
@@ -93,14 +94,13 @@ def collect_valid_links():
 
     try:
         # 마지막 ID 가져오기
-        last_id = extract_last_id(driver, base_url)
-        if last_id is None:
-            print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
-            return []   
+        # last_id = extract_last_id(driver, base_url)
+        # if last_id is None:
+        #     print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
+        #     return []   
     
         start_id = get_offset()
-
-
+        last_id = 60373
         # 크롤링 실행
         for csoonID in range(start_id, last_id + 1): 
             try:

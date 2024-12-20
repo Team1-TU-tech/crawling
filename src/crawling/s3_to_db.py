@@ -4,20 +4,13 @@ from valid_links import *
 import certifi
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
-import os, re
-from dotenv import load_dotenv
-load_dotenv()
+import re
 
-SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-
-MONGO_PASSWORD = os.getenv("MONGOPASS")
-MONGO_URL = f"mongodb+srv://hahahello777:{MONGO_PASSWORD}@cluster0.5vlv3.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URL="mongodb+srv://hahahello777:VIiYTK9NobgeM1hk@cluster0.5vlv3.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGO_URL, tlsCAFile=certifi.where())
-db = client.tut
+db = client.test
 
 def crawl_data(driver, csoonID):
-
     csoon_url = f"https://www.ticketlink.co.kr/help/notice/{csoonID}"
     driver.get(csoon_url)
     print(f"페이지 로드 완료: {driver.current_url}")
@@ -25,40 +18,64 @@ def crawl_data(driver, csoonID):
 
     try:
         # 전체 텍스트 추출
-        page_text = driver.find_element(By.TAG_NAME, "body").text
+        try:
+            page_text = driver.find_element(By.TAG_NAME, "body").text
+        except Exception as e:
+            print(f"페이지 텍스트를 찾을 수 없습니다: {e}")
+            page_text = None
 
         ################## 본문 공연 정보 추출 ##################
-        start_date, end_date, _, location, price, running_time, rating = extract_performance_info(page_text)
+        try:
+            start_date, end_date, _, location, price, running_time, rating = extract_performance_info(page_text)
+        except Exception as e:
+            print(f"공연 정보 추출 실패: {e}")
+            start_date, end_date, location, price, running_time, rating = None, None, None, None, None, None
 
         ################## 헤더 공연 정보 추출 ##################
-        poster_url, title, category, ticket_link, _ = extract_header(wait)
+        try:
+            poster_url, title, category, ticket_link, _ = extract_header(wait)
+        except Exception as e:
+            print(f"헤더 정보 추출 실패: {e}")
+            poster_url, title, category, ticket_link = None, None, None, None
 
         ################## 예매일 추출 ##################
-        open_date, pre_open_date = extract_open_date(driver, page_text)
+        try:
+            open_date, pre_open_date = extract_open_date(driver, page_text)
+        except Exception as e:
+            print(f"예매일 정보 추출 실패: {e}")
+            open_date, pre_open_date = None, None
 
         ################## 공연 설명 추출 ##################
-        announcement_section = driver.find_element(By.CLASS_NAME, "list_view")
-        full_text = announcement_section.text.strip()
-        performance_description = extract_description(full_text)
+        try:
+            announcement_section = driver.find_element(By.CLASS_NAME, "list_view")
+            full_text = announcement_section.text.strip()
+            performance_description = extract_description(full_text)
+        except Exception as e:
+            print(f"공연 설명 추출 실패: {e}")
+            performance_description = None
 
         # Region 전처리
-        region=crawl_region(location)
-        
+        try:
+            region = crawl_region(location)
+        except Exception as e:
+            print(f"지역 정보 추출 실패: {e}")
+            region = None
+
         # Price 전처리
-        price = extract_seat_prices(price)
-        
+        try:
+            price = extract_seat_prices(price)
+        except Exception as e:
+            print(f"가격 정보 전처리 실패: {e}")
+            price = None
+
         if title:
-            title_strip = re.sub(r'[^가-힣A-Za-z0-9]', '',title.strip())
+            title_strip = re.sub(r'[^가-힣A-Za-z0-9]', '', title.strip())
         else:
             title_strip = None
 
         duplicate_key = f"{title_strip}{start_date}"
 
-
-        artist_data = []  
-        cast_data = []
-
-
+        # 데이터 생성
         data = {
             "title": title,
             "duplicatekey": duplicate_key,
@@ -69,102 +86,74 @@ def crawl_data(driver, csoonID):
             "start_date": start_date,
             "end_date": end_date,
             "running_time": running_time,
-            "casting": cast_data,
+            "casting": [],
             "rating": rating,
             "description": performance_description,
             "poster_url": poster_url,
             "open_date": open_date,
             "pre_open_date": pre_open_date,
-            "artist": artist_data,
-            "hosts": [{"site_id": 3, "ticket_url": ticket_link}]
+            "artist": [],
+            "hosts": [{"site_id": 3, "ticket_url": ticket_link}],
         }
 
-        # 예매 링크 존재 여부 확인
-        if ticket_link:
-            try:
-                driver.get(ticket_link)
-                print(f"\n*****추가 데이터 추출을 위해 페이지 이동: {ticket_link}*****\n")
+        # 중복된 데이터가 존재하는지 체크
+        try:
+            existing_data = db.test.find_one({"duplicatekey": duplicate_key})
 
-                # 추가 정보 추출 (공연 세부 정보, 캐스트, 아티스트 데이터)
-                wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div")))
-                performance_update = extract_performance_data(driver)
-                cast_data, artist_data = extract_cast_data(driver)
+            if existing_data is None:
+                # 새로운 데이터 삽입
+                print(f"🐢🐢🐢🐢🐢Inserting new data: {duplicate_key}🐢🐢🐢🐢🐢")
+                db.test.insert_one(data)
+            else:
+                # 중복된 데이터가 있으면 hosts 필드만 업데이트
+                print(f"🥔🥔🥔🥔🥔Duplicate Data: {duplicate_key}. Updating hosts.🥔🥔🥔🥔🥔\n")
+                previous_hosts = existing_data.get("hosts", [])
+                if {"site_id": 3, "ticket_url": ticket_link} not in previous_hosts:
+                    if len(previous_hosts) < 3:
+                        previous_hosts.append({"site_id": 3, "ticket_url": ticket_link})
+                        db.test.update_one({"duplicatekey": duplicate_key}, {"$set": {"hosts": previous_hosts}})
+                elif {"site_id": 3, "ticket_url": ticket_link} in previous_hosts and len(previous_hosts) == 1  :
+                # ticket link만 hosts에 있는 경우 추가 상세 데이터 업데이트 시도
+                    if ticket_link:
+                        try:
+                            driver.get(ticket_link)
+                            print(f"\n*****추가 데이터 추출을 위해 페이지 이동: {ticket_link}*****\n")
 
-                # None인 값만 업데이트
-                for key in ['title', 'location', 'running_time', 'start_date', 'end_date', 'rating', 'price']:
-                    if data[key] is None and performance_update.get(key) is not None:
-                        data[key] = performance_update[key]
+                            # 추가 정보 추출
+                            wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div")))
+                            performance_update = extract_performance_data(driver)
+                            cast_data, artist_data = extract_cast_data(driver)
 
-                data['casting'] = cast_data
-                data['artist'] = artist_data
+                            # 업데이트할 
+                            fields_to_update = {}
+                            for key in ['title', 'location', 'running_time', 'start_date', 'end_date', 'rating', 'price']:
+                                if existing_data.get(key) in [None, ""] and performance_update.get(key):
+                                    fields_to_update[key] = performance_update[key]
+                                    
+                            # casting 및 artist 데이터 병합
+                            if cast_data and not existing_data.get("casting"):
+                                fields_to_update['casting'] = cast_data
 
-                print(f"data 업데이트 완료\n{data}\n")
-                # print(f"cast_data\n{cast_data}\n")
-                # print(f"artist_data\n{artist_data}\n")
+                            if artist_data and not existing_data.get("artist"):
+                                fields_to_update['artist'] = artist_data
 
-                #####################################################################################################
+                            # 필요한 값만 업데이트
+                            if fields_to_update:
+                                db.test.update_one({"duplicatekey": duplicate_key}, {"$set": fields_to_update})
+                                print(f"🍀🍀🍀🍀🍀Partial data updated for {duplicate_key}: {fields_to_update}🍀🍀🍀🍀🍀")
+                            else:
+                                print(f"✅ No updates required for {duplicate_key}.")       
+                                
+                        except Exception as e:
+                            print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
+        except Exception as e:
+            print(f"DB 처리 중 오류 발생: {e}\n")
 
-                # 중복된 데이터가 존재하는지 체크
-                existing_data = db.tut.find_one({"duplicatekey": duplicate_key})
-
-                if existing_data is None:
-                    # 중복된 데이터가 없으면 새로운 데이터 삽입
-                    try:
-                        #db.Shows.create_index([('title', 1),('start_date', 1)],unique=True)
-                        print(f"🐢🐢🐢🐢🐢Inserting new data: {duplicate_key}🐢🐢🐢🐢🐢")
-                        db.tut.insert_one({
-                            "title": title,
-                            "duplicatekey": duplicate_key,
-                            "category": category,
-                            "location": location,
-                            "region": region,
-                            "price": price,
-                            "start_date": start_date,
-                            "end_date": end_date,
-                            "running_time": running_time,
-                            "casting": cast_data,
-                            "rating": rating,
-                            "description": performance_description,
-                            "poster_url": poster_url,
-                            "open_date": open_date,
-                            "pre_open_date": pre_open_date,
-                            "artist": artist_data,
-                            "hosts": [{"site_id": 3, "ticket_url": ticket_link}]
-                        })
-                        
-                    except DuplicateKeyError:
-                        print(f"Duplicate key error: {duplicate_key}")
-                else:
-                        # 이미 데이터가 존재하면 hosts 필드만 업데이트
-                        print(f"Data already exists for {duplicate_key}. Updating hosts.")
-                        previous_data = db.tut.find_one({"duplicatekey":duplicate_key})
-                        previous_data = previous_data["hosts"]
-
-                        if len(previous_data) < 3:
-                            previous_data.append({"site_id":3, "ticket_url":ticket_link})
-                            db.tut.update_one({"duplicatekey":duplicate_key},{"$set":{"hosts":previous_data}})
-            except Exception as e:
-                print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
-                ticket_link = None
-
-        else:
-            print("예매 링크가 없어 추가 정보를 가져올 수 없습니다.\n")
-
-        
     except Exception as e:
-        print(f"공연 정보 추출 중 오류 발생: {e}\n")
-
-
-    # 예외 처리 - 추가적인 상세 페이지 정보 업데이트를 시도했지만 필요한 정보를 찾을 수 없을 때
-    if any(data[key] is None for key in ['location', 'running_time', 'start_date', 'end_date', 'rating', 'price']):
-        print("추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 정보를 찾을 수 없습니다.\n")
-
-    # # 데이터 출력
-    # print("\n***** 최종 데이터 출력 *****")
-    # for key, value in data.items():
-    #     print(f"{key}: {value}")
+        print(f"전체 데이터 수집 중 예외 발생: {e}\n")
 
     return data
+
 
 
 def crawl_valid_links(valid_links):
@@ -203,3 +192,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
