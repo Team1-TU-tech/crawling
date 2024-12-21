@@ -105,47 +105,48 @@ def crawl_data(driver, csoonID):
                 print(f"🐢🐢🐢🐢🐢Inserting new data: {duplicate_key}🐢🐢🐢🐢🐢")
                 db.test.insert_one(data)
             else:
-                # 중복된 데이터가 있으면 hosts 필드만 업데이트
+                # 중복된 데이터가 있으면 먼저저 hosts 필드만 업데이트
                 print(f"🥔🥔🥔🥔🥔Duplicate Data: {duplicate_key}. Updating hosts.🥔🥔🥔🥔🥔\n")
                 previous_hosts = existing_data.get("hosts", [])
                 if {"site_id": 3, "ticket_url": ticket_link} not in previous_hosts:
                     if len(previous_hosts) < 3:
                         previous_hosts.append({"site_id": 3, "ticket_url": ticket_link})
                         db.test.update_one({"duplicatekey": duplicate_key}, {"$set": {"hosts": previous_hosts}})
-                elif {"site_id": 3, "ticket_url": ticket_link} in previous_hosts and len(previous_hosts) == 1  :
-                # ticket link만 hosts에 있는 경우 추가 상세 데이터 업데이트 시도
-                    if ticket_link:
-                        try:
-                            driver.get(ticket_link)
-                            print(f"\n*****추가 데이터 추출을 위해 페이지 이동: {ticket_link}*****\n")
+                
+                # 그후 예매 상세 페이지가 있을 시 None 인 값에 대하여 업데이트 시도
+                if ticket_link:
+                    try:
+                        driver.get(ticket_link)
+                        print(f"\n🎁🎁🎁추가 데이터 추출을 위해 페이지 이동: {ticket_link}🎁🎁🎁\n")
 
-                            # 추가 정보 추출
-                            wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div")))
-                            performance_update = extract_performance_data(driver)
-                            cast_data, artist_data = extract_cast_data(driver)
+                        # 추가 정보 추출
+                        wait.until(EC.presence_of_element_located((By.XPATH, "//ul[@class='product_info_list type_col2']//span[contains(text(), '장소')]/following-sibling::div")))
+                        performance_update = extract_performance_data(driver)
+                        cast_data, artist_data = extract_cast_data(driver)
 
-                            # 업데이트할 
-                            fields_to_update = {}
-                            for key in ['title', 'location', 'running_time', 'start_date', 'end_date', 'rating', 'price']:
-                                if existing_data.get(key) in [None, ""] and performance_update.get(key):
-                                    fields_to_update[key] = performance_update[key]
-                                    
-                            # casting 및 artist 데이터 병합
-                            if cast_data and not existing_data.get("casting"):
-                                fields_to_update['casting'] = cast_data
-
-                            if artist_data and not existing_data.get("artist"):
-                                fields_to_update['artist'] = artist_data
-
-                            # 필요한 값만 업데이트
-                            if fields_to_update:
-                                db.test.update_one({"duplicatekey": duplicate_key}, {"$set": fields_to_update})
-                                print(f"🍀🍀🍀🍀🍀Partial data updated for {duplicate_key}: {fields_to_update}🍀🍀🍀🍀🍀")
-                            else:
-                                print(f"✅ No updates required for {duplicate_key}.")       
+                        # 업데이트 할 필드 딕셔너리
+                        fields_to_update = {}
+                        for key in ['title', 'location', 'running_time', 'start_date', 'end_date', 'rating', 'price']:
+                            if existing_data.get(key) in [None, ""] and performance_update.get(key):
+                                fields_to_update[key] = performance_update[key]
                                 
-                        except Exception as e:
-                            print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
+                        # casting 및 artist 데이터 병합
+                        if cast_data and not existing_data.get("casting"):
+                            fields_to_update['casting'] = cast_data
+
+                        if artist_data and not existing_data.get("artist"):
+                            fields_to_update['artist'] = artist_data
+
+                        # 필요한 값만 업데이트
+                        if fields_to_update:
+                            db.test.update_one({"duplicatekey": duplicate_key}, {"$set": fields_to_update})
+                            print(f"🍀🍀🍀🍀🍀Partial data updated for {duplicate_key}: {fields_to_update}🍀🍀🍀🍀🍀")
+                        else:
+                            print(f"✅ No updates required for {duplicate_key}.")       
+                            
+                    except Exception as e:
+                        print(f"추가적으로 상세 페이지에서 정보 업데이트를 시도했지만 오류가 발생했습니다: {e}\n")
+
         except Exception as e:
             print(f"DB 처리 중 오류 발생: {e}\n")
 
