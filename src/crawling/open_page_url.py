@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
-def get_open_page_url(base_num):
+def get_open_page_url(base_file_number):
     
     # ChromePtions 객체 생성
     options = Options()
