@@ -27,7 +27,7 @@ def extract_ticket_html(base_file_number):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
     # 크롤링 대상 URL
-    open_page_lists = get_open_page_url(base_file_number,100)
+    open_page_lists = get_open_page_url(base_file_number)
     #open_page_lists = get_open_page_url(53208,2)
     
     num = ''
