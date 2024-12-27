@@ -9,7 +9,7 @@ from selenium.webdriver.chrome.service import Service
 
 def get_open_page_url(base_file_number):
     
-    # ChromePtions 객체 생성
+    # ChromeOptions 객체 생성
     options = Options()
     options.add_argument("--no-sandbox")
     options.add_argument("--headless")
