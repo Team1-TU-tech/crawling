@@ -23,11 +23,12 @@ def get_open_page_url(base_file_number):
 
     # 결과 데이터 저장
     open_page_list = []
-
     # base_num부터 시작해 max_pages 만큼 반복
-    for num in range(base_file_number, 100):
+    
+    for num in range(base_file_number, 100+base_file_number):
         try:
             open_page_url = f'https://ticket.interpark.com/webzine/paper/TPNoticeView.asp?bbsno=34&pageno=233&stext=&no={num}&groupno={num}&seq=0&KindOfGoods=TICKET&Genre=&sort=WriteDate'
+            print(open_page_url)
             driver.get(open_page_url)
 
 
@@ -51,7 +52,7 @@ def get_open_page_url(base_file_number):
             print("open_page_url 접속 에러")
       
     return open_page_list
+    
 
 
-
-#get_open_page_url(53717,10)
+#get_open_page_url(53783,100)

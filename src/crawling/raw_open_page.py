@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup  # HTML 포맷팅을 위한 라이브러리
 from webdriver_manager.chrome import ChromeDriverManager
-from crawling.open_page_url import get_open_page_url
+from open_page_url import get_open_page_url
 import time
 import os
 
@@ -66,5 +66,5 @@ def extract_open_html(base_file_number):
 
 #if __name__ == "__main__":
     # 함수 실행
-#    extract_open_html()
+#    extract_open_html(53783)
 
