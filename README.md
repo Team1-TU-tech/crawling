@@ -12,7 +12,7 @@ ticketlink 웹사이트에서 공연 정보를 크롤링하여 다양한 공연�
 - **티켓 정보 수집**: 공연 이름, 날짜, 시간, 가격, 좌석 정보 등 다양한 티켓 정보를 수집
 <br></br>
 ## Contributors
-`oddsummer`
+`oddsummer56`
 <br></br>
 ## License
 이 애플리케이션은 TU-tech 라이선스에 따라 라이선스가 부과됩니다.
@@ -22,4 +22,4 @@ ticketlink 웹사이트에서 공연 정보를 크롤링하여 다양한 공연�
 <br></br>
 - 이메일: TU-tech@tu-tech.com
 - Github: `Mingk42`, `hahahellooo`, `hamsunwoo`, `oddsummer56`
-# crawling
+
