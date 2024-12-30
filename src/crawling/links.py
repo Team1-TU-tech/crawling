@@ -14,12 +14,11 @@ def get_link(start_id=52001, max_retries=3, retry_delay=5):
 
     # 링크를 저장할 리스트
     all_links = []
-    num = start_id  # 시작할 start_id 가져오기
-    print(f"크롤링 시작: 시작 페이지 번호는 {num}입니다.")
+    print(f"크롤링 시작: 시작 페이지 번호는 {start_id}입니다.")
 
     try:
         while True:
-            url = f'http://ticket.yes24.com/Perf/{num}'
+            url = f'http://ticket.yes24.com/Perf/{start_id}'
             retries = 0  # 재시도 횟수 초기화
             success = False  # 성공 여부 플래그
 
@@ -33,15 +32,15 @@ def get_link(start_id=52001, max_retries=3, retry_delay=5):
                     error_image = driver.find_elements(By.CSS_SELECTOR, 'img[src="http://tkfile.yes24.com/images/errorImg_ticket.gif"]')
 
                     if error_image:
-                        if num >= 52000:  # 마지막 페이지 조건
-                            print(f"마지막 페이지 {num}에서 크롤링을 종료합니다.")
+                        if start_id >= 52000:  # 마지막 페이지 조건
+                            print(f"마지막 페이지 {start_id}에서 크롤링을 종료합니다.")
                             return all_links
                         else:
-                            print(f"페이지 {num}은 삭제된 페이지입니다. 다음 페이지로 이동합니다.")
+                            print(f"페이지 {start_id}은 삭제된 페이지입니다. 다음 페이지로 이동합니다.")
                             success = True  # 다음 페이지로 이동하기 위해 성공 처리
                     else:
                         # 정상 페이지라면 링크를 저장
-                        print(f"페이지 {num} 수집 완료.")
+                        print(f"페이지 {start_id} 수집 완료.")
                         all_links.append(url)
                         success = True  # 성공 처리
 
@@ -54,10 +53,10 @@ def get_link(start_id=52001, max_retries=3, retry_delay=5):
                     break  # 알 수 없는 예외 발생 시 크롤링 중단
 
             if not success:
-                print(f"페이지 {num} 크롤링 실패. 다음 페이지로 이동합니다.")
+                print(f"페이지 {start_id} 크롤링 실패. 다음 페이지로 이동합니다.")
 
             # 다음 페이지로 이동
-            num += 1
+            start_id += 1
 
     except KeyboardInterrupt:
         print("\n작업이 중단되었습니다. 마지막으로 시도한 페이지 번호를 저장합니다.")
