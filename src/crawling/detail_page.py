@@ -226,8 +226,12 @@ def extract_performance_data(driver):
             price_elements = driver.find_elements(By.XPATH, price_xpath)
             prices = [elem.text.strip() for elem in price_elements]
             data["price"] = ", ".join(prices)
+
         except Exception as e:
             print(f"price 정보를 찾을 수 없습니다: {e}")
+
+
+
 
     except Exception as e:
         print(f"기타 오류 발생: {e}")

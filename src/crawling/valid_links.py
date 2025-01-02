@@ -100,7 +100,7 @@ def collect_valid_links():
         #     return []   
     
         start_id = get_offset()
-        last_id = 60373
+        last_id = 61032
         # 크롤링 실행
         for csoonID in range(start_id, last_id + 1): 
             try:
