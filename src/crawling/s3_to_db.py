@@ -8,7 +8,7 @@ import re
 
 MONGO_URL="mongodb+srv://hahahello777:VIiYTK9NobgeM1hk@cluster0.5vlv3.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGO_URL, tlsCAFile=certifi.where())
-db = client.test
+db = client.tut
 
 def crawl_data(driver, csoonID):
     csoon_url = f"https://www.ticketlink.co.kr/help/notice/{csoonID}"
@@ -98,13 +98,13 @@ def crawl_data(driver, csoonID):
 
         # 중복된 데이터가 존재하는지 체크
         try:
-            existing_data = db.test.find_one({"duplicatekey": duplicate_key})
+            existing_data = db.data.find_one({"duplicatekey": duplicate_key})
 
             if existing_data is None:
                 # 새로운 데이터 삽입
                 print(f"🐢🐢🐢🐢🐢Inserting new data: {duplicate_key}🐢🐢🐢🐢🐢")
-                db.test.insert_one(data)
-                existing_data = db.test.find_one({"duplicatekey": duplicate_key})
+                db.data.insert_one(data)
+                existing_data = db.data.find_one({"duplicatekey": duplicate_key})
             else:
                 # 중복된 데이터가 있으면 먼저 hosts 필드만 업데이트
                 print(f"🥔🥔🥔🥔🥔Duplicate Data: {duplicate_key}. Updating hosts.🥔🥔🥔🥔🥔\n")
@@ -112,7 +112,7 @@ def crawl_data(driver, csoonID):
                 if {"site_id": 3, "ticket_url": ticket_link} not in previous_hosts:
                     if len(previous_hosts) < 3:
                         previous_hosts.append({"site_id": 3, "ticket_url": ticket_link})
-                        db.test.update_one({"duplicatekey": duplicate_key}, {"$set": {"hosts": previous_hosts}})
+                        db.data.update_one({"duplicatekey": duplicate_key}, {"$set": {"hosts": previous_hosts}})
                 
             # 그후 예매 상세 페이지가 있을 시 None 인 값에 대하여 업데이트 시도
             if ticket_link:
@@ -140,7 +140,7 @@ def crawl_data(driver, csoonID):
 
                     # 필요한 값만 업데이트
                     if fields_to_update:
-                        db.test.update_one({"duplicatekey": duplicate_key}, {"$set": fields_to_update})
+                        db.data.update_one({"duplicatekey": duplicate_key}, {"$set": fields_to_update})
                         print(f"🍀🍀🍀🍀🍀Partial data updated for {duplicate_key}: {fields_to_update}🍀🍀🍀🍀🍀")
                     else:
                         print(f"✅ No updates required for {duplicate_key}.")       

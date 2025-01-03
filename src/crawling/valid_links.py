@@ -93,14 +93,15 @@ def collect_valid_links():
     valid_links = []
 
     try:
-        # 마지막 ID 가져오기
-        # last_id = extract_last_id(driver, base_url)
-        # if last_id is None:
-        #     print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
-        #     return []   
+        #마지막 ID 가져오기
+        last_id = extract_last_id(driver, base_url)
+        if last_id is None:
+            print("마지막 고유번호를 가져오지 못했습니다. 프로그램을 종료합니다.")
+            return []   
     
         start_id = get_offset()
-        last_id = 61032
+        print(f"@@@{start_id} 부터 {last_id} 까지 수집시작@@@")
+        
         # 크롤링 실행
         for csoonID in range(start_id, last_id + 1): 
             try:
