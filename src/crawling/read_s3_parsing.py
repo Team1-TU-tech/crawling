@@ -337,7 +337,7 @@ def extract_data(soup):
     if ticket_data['region'] is None:
         print("region 재검색중...")
         location_part = location.rsplit(' ',1)
-        result = ' '.join(location_part[0][:2])
+        result = ' '.join(location_part[0].split()[:2])
         ticket_data['region'] = get_region(result)
     
     # 가격 추출
